@@ -1,41 +1,48 @@
 let scannerActive = false;
 let quaggaInitialized = false;
 
-// --- DARK MODE THEME LOGIC ---
+// --- DYNAMIC SVG ICONS FOR DARK MODE ---
+const sunIcon = `<svg class="w-5 h-5 text-yellow-500" fill="currentColor" viewBox="0 0 20 20"><path d="M10 2a1 1 0 011 1v1a1 1 0 11-2 0V3a1 1 0 011-1zm4.22 4.22a1 1 0 011.415 0l.708.708a1 1 0 01-1.414 1.414l-.708-.708a1 1 0 010-1.414zM18 10a1 1 0 01-1 1h-1a1 1 0 110-2h1a1 1 0 011 1zM14.22 15.78a1 1 0 010 1.415l-.708.708a1 1 0 01-1.414-1.414l.708-.708a1 1 0 011.415 0zM10 16a1 1 0 011 1v1a1 1 0 11-2 0v-1a1 1 0 011-1zm-4.22-1.42a1 1 0 01-1.415 0l-.708-.708a1 1 0 011.414-1.414l.708.708a1 1 0 010 1.414zM4 10a1 1 0 01-1 1H2a1 1 0 110-2h1a1 1 0 011 1zM5.78 5.78a1 1 0 010-1.415l.708-.708a1 1 0 011.414 1.414l-.708.708a1 1 0 01-1.415 0z"/><path fill-rule="evenodd" d="M10 5a5 5 0 100 10 5 5 0 000-10zm0 8a3 3 0 110-6 3 3 0 010 6z" clip-rule="evenodd"/></svg>`;
+const moonIcon = `<svg class="w-5 h-5 text-gray-700 dark:text-gray-300" fill="currentColor" viewBox="0 0 20 20"><path d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z"/></svg>`;
+
 function toggleTheme() {
     const htmlObj = document.documentElement;
     if (htmlObj.classList.contains('dark')) {
         htmlObj.classList.remove('dark');
         localStorage.setItem('theme', 'light');
-        document.getElementById('theme-icon').innerText = '🌙';
+        document.getElementById('theme-icon').innerHTML = moonIcon;
     } else {
         htmlObj.classList.add('dark');
         localStorage.setItem('theme', 'dark');
-        document.getElementById('theme-icon').innerText = '☀️';
+        document.getElementById('theme-icon').innerHTML = sunIcon;
     }
 }
 
-// --- INITIALIZATION ---
 window.onload = function() {
-    // Theme setup
+    const themeIconElement = document.getElementById('theme-icon');
+    
     if (localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
         document.documentElement.classList.add('dark');
-        document.getElementById('theme-icon').innerText = '☀️';
+        if(themeIconElement) themeIconElement.innerHTML = sunIcon;
     } else {
         document.documentElement.classList.remove('dark');
-        document.getElementById('theme-icon').innerText = '🌙';
+        if(themeIconElement) themeIconElement.innerHTML = moonIcon;
     }
 
-    // Auth setup
     updateNavVisibility();
     if (sessionStorage.getItem('isAdminLoggedIn') === 'true') { 
         switchView('admin-add'); 
     } else { 
-        switchView('user-verify'); 
+        switchView('home'); 
     }
 };
 
 // --- DATABASE SETUP ---
+let usersDatabase = JSON.parse(localStorage.getItem('usersDB')) || {
+    "admin@mediverify.com": { name: "System Admin", mobile: "0000000000", org: "MediVerify Corp", role: "Manufacturer", license: "SYS-001", password: "admin123" }
+};
+localStorage.setItem('usersDB', JSON.stringify(usersDatabase));
+
 const defaultDatabase = {
   "8901234567890": { name: "Paracetamol 500mg", manufacturer: "Cipla Ltd", batch: "CIP2024A", expiry: "2026-08-31", status: "authentic", distribution: "India", purpose: "Used to reduce fever and relieve mild to moderate pain.", dosage: "1 tablet every 6 hours after food.", whoCanUse: "Adults and children above 12.", precaution: "Do not exceed the recommended dose.", sideEffects: "Rarely causes nausea.", scans: [] }
 };
@@ -43,85 +50,135 @@ let medicineDatabase = JSON.parse(localStorage.getItem('medicineDB')) || default
 let reportsDatabase = JSON.parse(localStorage.getItem('reportsDB')) || [];
 const userLocation = 'Chennai, Tamil Nadu, India';
 
-// --- VIEW NAVIGATION AND AUTHENTICATION ---
 function updateNavVisibility() {
     const isLoggedIn = sessionStorage.getItem('isAdminLoggedIn') === 'true';
-    document.getElementById('nav-verify').classList.toggle('hidden', isLoggedIn);
-    document.getElementById('nav-bot').classList.toggle('hidden', isLoggedIn);
-    document.getElementById('nav-report').classList.toggle('hidden', isLoggedIn);
-    document.getElementById('nav-admin-login').classList.toggle('hidden', isLoggedIn);
-    
-    document.getElementById('nav-admin-add').classList.toggle('hidden', !isLoggedIn);
-    document.getElementById('nav-admin-list').classList.toggle('hidden', !isLoggedIn);
-    document.getElementById('nav-logout').classList.toggle('hidden', !isLoggedIn);
+    document.getElementById('public-auth-btns').classList.toggle('hidden', isLoggedIn);
+    document.getElementById('public-auth-btns').classList.toggle('flex', !isLoggedIn);
+    document.getElementById('admin-auth-btns').classList.toggle('hidden', !isLoggedIn);
+    document.getElementById('admin-auth-btns').classList.toggle('flex', isLoggedIn);
 }
 
 function switchView(viewName) {
     document.querySelectorAll('.view-section').forEach(el => el.classList.add('hidden'));
     document.getElementById('view-' + viewName).classList.remove('hidden');
     
+    const landingLinks = document.getElementById('nav-landing-links');
+    if(landingLinks) {
+        if (viewName === 'home') {
+            landingLinks.classList.remove('hidden');
+            landingLinks.classList.add('md:flex');
+        } else {
+            landingLinks.classList.add('hidden');
+            landingLinks.classList.remove('md:flex');
+        }
+    }
+
     if (viewName === 'admin-list') renderMedicineList();
-    if (viewName !== 'user-verify' && scannerActive) stopScanner();
+    if (viewName !== 'home' && scannerActive) stopScanner();
+    window.scrollTo(0,0);
 }
 
-// --- SECURE EMAIL OTP LOGIN LOGIC ---
-let generatedOTP = null;
+function goToSection(sectionId) {
+    if (document.getElementById('view-home').classList.contains('hidden')) {
+        switchView('home');
+        setTimeout(() => {
+            document.getElementById(sectionId).scrollIntoView({ behavior: 'smooth' });
+            if(sectionId === 'verify-section') document.getElementById('barcode-input').focus();
+        }, 100);
+    } else {
+        document.getElementById(sectionId).scrollIntoView({ behavior: 'smooth' });
+        if(sectionId === 'verify-section') document.getElementById('barcode-input').focus();
+    }
+}
 
-function requireAdminLogin() {
-    // Reset login form back to Email step
-    document.getElementById('email-step').classList.remove('hidden');
-    document.getElementById('otp-step').classList.add('hidden');
-    document.getElementById('btn-login').classList.add('hidden');
-    document.getElementById('admin-email').value = '';
-    document.getElementById('admin-otp').value = '';
-    document.getElementById('login-error').classList.add('hidden');
-    document.getElementById('btn-send-otp').innerText = 'Send OTP';
-    generatedOTP = null;
+let pendingRegistration = null;
+let registrationOTP = null;
 
+function requireAdminLogin(mode = 'register') {
+    toggleAuthMode(mode); 
     switchView('admin-login');
 }
 
-function sendOTP() {
-    const emailInput = document.getElementById('admin-email').value.trim();
-    if (!emailInput || !emailInput.includes('@')) {
-        alert('Please enter a valid email address.');
-        return;
-    }
-
-    // Generate a secure 6-digit OTP
-    generatedOTP = Math.floor(100000 + Math.random() * 900000).toString();
+function toggleAuthMode(mode) {
+    document.getElementById('form-login').classList.add('hidden');
+    document.getElementById('form-register').classList.add('hidden');
+    document.getElementById('form-register-otp').classList.add('hidden');
     
-    // Simulate sending email
-    alert(`📧 SECURITY SYSTEM SIMULATION\n\nAn email has been sent to: ${emailInput}\n\nYour Temporary OTP is: ${generatedOTP}`);
+    const tabLogin = document.getElementById('tab-login');
+    const tabRegister = document.getElementById('tab-register');
+    
+    tabLogin.className = "w-1/2 py-5 text-center font-bold text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 transition outline-none";
+    tabRegister.className = "w-1/2 py-5 text-center font-bold text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 transition outline-none";
 
-    // Update UI to reveal the OTP field
-    document.getElementById('otp-step').classList.remove('hidden');
-    document.getElementById('btn-login').classList.remove('hidden');
-    document.getElementById('btn-send-otp').innerText = 'Resend OTP';
-    document.getElementById('login-error').classList.add('hidden');
+    if(mode === 'login') {
+        document.getElementById('form-login').classList.remove('hidden');
+        tabLogin.className = "w-1/2 py-5 text-center font-bold bg-white dark:bg-gray-800 text-[#6b21a8] dark:text-[#a855f7] border-b-2 border-[#6b21a8] dark:border-[#a855f7] transition outline-none";
+        document.getElementById('login-error').classList.add('hidden');
+        document.getElementById('form-login').reset();
+    } else {
+        document.getElementById('form-register').classList.remove('hidden');
+        tabRegister.className = "w-1/2 py-5 text-center font-bold bg-white dark:bg-gray-800 text-[#6b21a8] dark:text-[#a855f7] border-b-2 border-[#6b21a8] dark:border-[#a855f7] transition outline-none";
+        document.getElementById('form-register').reset();
+        document.getElementById('form-register-otp').reset();
+        pendingRegistration = null;
+        registrationOTP = null;
+    }
 }
 
-function handleAdminLogin(event) {
+function handleLogin(event) {
     event.preventDefault();
-    const enteredOTP = document.getElementById('admin-otp').value.trim();
+    const email = document.getElementById('login-email').value.trim();
+    const pass = document.getElementById('login-pass').value.trim();
     const errorMsg = document.getElementById('login-error');
 
-    if (!generatedOTP) {
-        alert('Please request an OTP first by entering your email.');
-        return;
-    }
-
-    // Verify OTP
-    if (enteredOTP === generatedOTP) {
+    if (usersDatabase[email] && usersDatabase[email].password === pass) {
         sessionStorage.setItem('isAdminLoggedIn', 'true');
         errorMsg.classList.add('hidden');
-        document.getElementById('admin-login-form').reset();
-        generatedOTP = null; // Clear OTP after success
-        
+        document.getElementById('form-login').reset();
         updateNavVisibility();
-        switchView('admin-add'); // redirect to dashboard successfully
+        switchView('admin-add');
     } else {
         errorMsg.classList.remove('hidden');
+    }
+}
+
+function handleRegisterSubmit(event) {
+    event.preventDefault();
+    const pass = document.getElementById('reg-pass').value;
+    const cpass = document.getElementById('reg-cpass').value;
+    const email = document.getElementById('reg-email').value.trim();
+    const mobile = document.getElementById('reg-mobile').value.trim();
+    
+    if(pass !== cpass) return alert("Passwords do not match!");
+    if(usersDatabase[email]) return alert("This Email is already registered!");
+
+    pendingRegistration = {
+        name: document.getElementById('reg-name').value.trim(),
+        email: email, mobile: mobile,
+        org: document.getElementById('reg-org').value.trim(),
+        role: document.getElementById('reg-role').value,
+        license: document.getElementById('reg-license').value.trim(),
+        password: pass 
+    };
+
+    registrationOTP = Math.floor(100000 + Math.random() * 900000).toString();
+    alert(`📧 SECURITY SYSTEM SIMULATION\n\nRegistration OTP sent to:\nEmail: ${email}\nMobile: ${mobile}\n\nYour Temporary Registration OTP is: ${registrationOTP}`);
+
+    document.getElementById('form-register').classList.add('hidden');
+    document.getElementById('form-register-otp').classList.remove('hidden');
+}
+
+function verifyRegisterOTP(event) {
+    event.preventDefault();
+    const enteredOTP = document.getElementById('reg-otp-input').value.trim();
+    
+    if(enteredOTP === registrationOTP) {
+        usersDatabase[pendingRegistration.email] = pendingRegistration;
+        localStorage.setItem('usersDB', JSON.stringify(usersDatabase));
+        alert("✅ Registration Successful! You can now log in securely with your Email and Password.");
+        toggleAuthMode('login');
+    } else {
+        alert("❌ Invalid OTP! Please try again.");
     }
 }
 
@@ -129,10 +186,9 @@ function logoutAdmin() {
     sessionStorage.removeItem('isAdminLoggedIn');
     alert("Admin logged out successfully.");
     updateNavVisibility();
-    switchView('user-verify');
+    switchView('home');
 }
 
-// --- ADMIN CRUD FUNCTIONS ---
 function addMedicine(event) {
     event.preventDefault();
     const barcode = document.getElementById('new-barcode').value.trim();
@@ -151,15 +207,30 @@ function addMedicine(event) {
 function renderMedicineList() {
     const tbody = document.getElementById('medicine-table-body');
     tbody.innerHTML = '';
+    
     for (const [barcode, med] of Object.entries(medicineDatabase)) {
         const row = document.createElement('tr');
-        let statusColor = med.status === 'authentic' ? 'text-green-600 bg-green-100' : 'text-red-600 bg-red-100';
+        row.className = "hover:bg-gray-50 dark:hover:bg-gray-700/50 transition duration-150"; 
+        let statusColor = med.status === 'authentic' ? 'text-green-600 bg-green-100 dark:bg-green-900/30 dark:text-green-400' : 'text-red-600 bg-red-100 dark:bg-red-900/30 dark:text-red-400';
+        const scanCount = med.scans ? med.scans.length : 0;
+
         row.innerHTML = `
-            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-gray-100">${barcode}</td>
-            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">${med.name}</td>
-            <td class="px-6 py-4 whitespace-nowrap text-sm"><span class="px-2 inline-flex text-xs font-semibold rounded-full ${statusColor}">${med.status.toUpperCase()}</span></td>
-            <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                <button onclick="editMedicine('${barcode}')" class="text-blue-600 hover:text-blue-900 bg-blue-50 dark:bg-blue-900/30 px-4 py-2 rounded-md transition border border-blue-200 dark:border-blue-800">Edit</button>
+            <td class="px-5 py-3 whitespace-nowrap text-sm font-bold text-gray-900 dark:text-gray-100">${barcode}</td>
+            <td class="px-5 py-3 whitespace-nowrap text-sm text-gray-600 dark:text-gray-300">${med.name}</td>
+            <td class="px-5 py-3 whitespace-nowrap text-sm">
+                <span class="px-2.5 py-1 inline-flex text-[10px] font-extrabold rounded-full tracking-wide ${statusColor}">
+                    ${med.status.toUpperCase()}
+                </span>
+            </td>
+            <td class="px-5 py-3 whitespace-nowrap text-center text-sm">
+                <button onclick="viewScanHistory('${barcode}')" class="text-blue-600 hover:text-blue-800 bg-blue-50 hover:bg-blue-100 dark:bg-blue-900/20 dark:text-blue-400 dark:hover:bg-blue-900/40 px-3 py-1.5 rounded-lg transition font-bold text-xs">
+                    View Log (${scanCount})
+                </button>
+            </td>
+            <td class="px-5 py-3 whitespace-nowrap text-right text-sm font-medium">
+                <button onclick="editMedicine('${barcode}')" class="text-[#6b21a8] hover:text-[#581c87] bg-purple-50 hover:bg-purple-100 dark:bg-purple-900/30 dark:text-[#a855f7] dark:hover:bg-purple-900/50 px-4 py-1.5 rounded-lg transition font-bold text-xs shadow-sm">
+                    Edit / View
+                </button>
             </td>`;
         tbody.appendChild(row);
     }
@@ -211,49 +282,42 @@ function viewScanHistory(barcode) {
     const tbody = document.getElementById('scan-history-body');
     tbody.innerHTML = '';
     if (!med.scans || med.scans.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="2" class="px-6 py-4 text-center text-sm text-gray-500">No scans recorded yet.</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="2" class="px-8 py-5 text-center text-sm font-medium text-gray-500">No scans recorded yet.</td></tr>';
     } else {
         med.scans.forEach(scan => {
-            tbody.innerHTML += `<tr><td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">${new Date(scan.timestamp).toLocaleString()}</td><td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">${scan.location}</td></tr>`;
+            tbody.innerHTML += `<tr><td class="px-8 py-5 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-gray-100">${new Date(scan.timestamp).toLocaleString()}</td><td class="px-8 py-5 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">${scan.location}</td></tr>`;
         });
     }
     switchView('admin-history');
 }
 
-// --- USER REPORTS ---
 function openReportForm(barcode = '', batch = '') {
-    document.getElementById('report-barcode').value = barcode;
-    document.getElementById('report-batch').value = batch;
-    document.getElementById('report-city').value = '';
-    document.getElementById('report-reason').value = '';
-    
-    // Ensure the file input is cleared every time the form is opened
-    const photoInput = document.getElementById('report-photo');
-    if(photoInput) photoInput.value = '';
-    
-    switchView('user-report');
+    if (!document.getElementById('view-home').classList.contains('hidden')) {
+        document.getElementById('report-barcode').value = barcode;
+        document.getElementById('report-batch').value = batch;
+        goToSection('report-section');
+    } else {
+        switchView('home');
+        setTimeout(() => {
+            document.getElementById('report-barcode').value = barcode;
+            document.getElementById('report-batch').value = batch;
+            goToSection('report-section');
+        }, 100);
+    }
 }
 
 function submitReport(event) {
     event.preventDefault();
-    
-    // In a real full-stack app, this is where you would upload the photo file to a server
-    // const photoFile = document.getElementById('report-photo').files[0];
-    
     reportsDatabase.push({
-        barcode: document.getElementById('report-barcode').value.trim(), 
-        batch: document.getElementById('report-batch').value.trim(),
-        city: document.getElementById('report-city').value.trim(), 
-        reason: document.getElementById('report-reason').value.trim(), 
-        timestamp: new Date()
+        barcode: document.getElementById('report-barcode').value.trim(), batch: document.getElementById('report-batch').value.trim(),
+        city: document.getElementById('report-city').value.trim(), reason: document.getElementById('report-reason').value.trim(), timestamp: new Date()
     });
-    
     localStorage.setItem('reportsDB', JSON.stringify(reportsDatabase));
     alert("Thank you! Your report has been submitted.");
-    switchView('user-verify');
+    document.getElementById('report-form').reset();
+    goToSection('home');
 }
 
-// --- CHATBOT MODULE ---
 function handleChatKeyPress(event) { if (event.key === 'Enter') sendChatMessage(); }
 
 function sendChatMessage() {
@@ -265,7 +329,7 @@ function sendChatMessage() {
     setTimeout(() => {
         const keywords = message.toLowerCase().split(/[\s,]+/); let matches = [];
         for (const [b, med] of Object.entries(medicineDatabase)) { if (med.purpose && med.status !== 'recalled' && keywords.some(k => k.length > 3 && med.purpose.toLowerCase().includes(k))) matches.push(med); }
-        let response = matches.length > 0 ? "<p class='mb-2'>Matches:</p>" + Array.from(new Set(matches.map(m => m.name))).map(n => matches.find(m => m.name === n)).map(med => `<div class="bg-white dark:bg-gray-700 rounded p-3 mt-2"><strong>💊 ${med.name}</strong><br><span class="text-sm"><em>Purpose:</em> ${med.purpose}</span></div>`).join('') : "No medicines found for those symptoms.";
+        let response = matches.length > 0 ? "<p class='mb-2'>Matches:</p>" + Array.from(new Set(matches.map(m => m.name))).map(n => matches.find(m => m.name === n)).map(med => `<div class="bg-white dark:bg-gray-700 rounded-xl shadow-sm border border-gray-100 dark:border-gray-600 p-3 mt-2"><strong>💊 ${med.name}</strong><br><span class="text-sm text-gray-600 dark:text-gray-300"><em>Purpose:</em> ${med.purpose}</span></div>`).join('') : "No medicines found for those symptoms.";
         addMessageToChat('bot', response);
     }, 800);
 }
@@ -273,16 +337,19 @@ function sendChatMessage() {
 function addMessageToChat(sender, text) {
     const chatWindow = document.getElementById('chat-window'); const messageDiv = document.createElement('div');
     messageDiv.className = sender === 'user' ? 'flex items-end justify-end' : 'flex items-start';
-    messageDiv.innerHTML = `<div class="${sender === 'user' ? 'bg-indigo-600 text-white' : 'bg-indigo-100 dark:bg-indigo-900 text-indigo-900 dark:text-indigo-100'} rounded-lg p-3 max-w-[85%] shadow-sm">${text}</div>`;
+    messageDiv.innerHTML = `<div class="${sender === 'user' ? 'bg-[#6b21a8] text-white rounded-tr-none' : 'bg-[#f3e8ff] dark:bg-purple-900/40 text-[#6b21a8] dark:text-purple-100 rounded-tl-none border border-purple-100 dark:border-purple-800'} rounded-2xl p-4 max-w-[85%] shadow-sm font-medium">${text}</div>`;
     chatWindow.appendChild(messageDiv); chatWindow.scrollTop = chatWindow.scrollHeight;
 }
 
-// --- SCANNER AND VERIFICATION MODULE ---
 function initScanner() {
-    if (scannerActive) { stopScanner(); return; }
+    document.getElementById('instructions-section').classList.add('hidden');
+    document.getElementById('results-section').classList.add('hidden');
+    const scannerContainer = document.getElementById('scanner-container');
+    
+    scannerContainer.classList.remove('hidden');
+    if (scannerActive) return;
+    
     const video = document.getElementById('video');
-    const placeholder = document.getElementById('scanner-placeholder');
-    placeholder.classList.add('hidden');
     scannerActive = true;
     navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } }).then(function(stream) {
         video.srcObject = stream; video.play();
@@ -290,38 +357,68 @@ function initScanner() {
             Quagga.init({ inputStream: { name: "Live", type: "LiveStream", target: video }, decoder: { readers: ["ean_reader", "ean_8_reader", "code_128_reader"] } }, function(err) { if (err) return; quaggaInitialized = true; Quagga.start(); });
             Quagga.onDetected(function(result) { verifyBarcode(result.codeResult.code); stopScanner(); });
         }
-    }).catch(function() { alert("Camera access denied. HTTPS is required."); placeholder.classList.remove('hidden'); scannerActive = false; });
+    }).catch(function() { alert("Camera access denied. HTTPS is required."); scannerContainer.classList.add('hidden'); document.getElementById('instructions-section').classList.remove('hidden'); scannerActive = false; });
 }
 
 function stopScanner() {
     const video = document.getElementById('video');
     if (video.srcObject) { video.srcObject.getTracks().forEach(track => track.stop()); video.srcObject = null; }
     if (quaggaInitialized) Quagga.stop();
-    document.getElementById('scanner-placeholder').classList.remove('hidden'); scannerActive = false;
+    document.getElementById('scanner-container').classList.add('hidden'); 
+    scannerActive = false;
+    
+    if(document.getElementById('results-section').classList.contains('hidden')) {
+        document.getElementById('instructions-section').classList.remove('hidden');
+    }
 }
 
-function verifyManualInput() {
-    verifyBarcode(document.getElementById('barcode-input').value.trim(), document.getElementById('medicine-name').value.trim());
-}
+function verifyManualInput() { verifyBarcode(document.getElementById('barcode-input').value.trim()); }
 
-function verifyBarcode(barcode, medicineName = '') {
+function verifyBarcode(barcode) {
     if (!barcode) return alert('Please enter a barcode');
     
-    const instSection = document.getElementById('instructions-section');
-    if(instSection) instSection.classList.add('hidden');
-    
+    if (scannerActive) stopScanner();
+    document.getElementById('instructions-section').classList.add('hidden');
     document.getElementById('results-section').classList.remove('hidden');
     const resultCard = document.getElementById('result-card');
     resultCard.classList.add('show');
     
-    resultCard.innerHTML = `<div class="text-center py-12"><div class="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div><p class="text-gray-600 dark:text-gray-300 font-medium">Querying Pharmaceutical Database...</p></div>`;
+    resultCard.innerHTML = `<div class="text-center py-16"><div class="animate-spin rounded-full h-12 w-12 border-b-4 border-[#6b21a8] mx-auto mb-4"></div><p class="text-gray-600 dark:text-gray-300 font-bold">Querying Authentic Databases...</p></div>`;
     
     setTimeout(() => {
-        const result = medicineDatabase[barcode] || { name: medicineName || 'Unknown Medicine', manufacturer: 'Unknown', batch: 'N/A', expiry: 'N/A', status: 'unknown', distribution: 'Unknown', purpose: 'Not specified', dosage: 'Consult doctor', whoCanUse: 'Consult doctor', precaution: 'Consult doctor', sideEffects: 'None', scans: [] };
-        if (!result.scans) result.scans = [];
-        result.scans.push({ location: userLocation, timestamp: new Date() });
-        displayResults(result, barcode);
+        const result = medicineDatabase[barcode];
+        if (result && result.status !== 'unknown') {
+            if (!result.scans) result.scans = [];
+            result.scans.push({ location: userLocation, timestamp: new Date() });
+            displayResults(result, barcode);
+        } else {
+            displayUnknownResult(barcode);
+        }
     }, 1500);
+}
+
+function displayUnknownResult(barcode) {
+    const resultCard = document.getElementById('result-card');
+    resultCard.innerHTML = `
+        <div class="p-8 border-l-8 border-red-500 bg-white dark:bg-gray-800 rounded-r-xl">
+            <div class="flex items-start justify-between">
+                <div>
+                    <h4 class="text-2xl font-extrabold text-red-600 dark:text-red-400 mb-2 tracking-wide">❌ UNKNOWN BARCODE</h4>
+                    <p class="text-gray-600 dark:text-gray-300 font-medium text-lg">Barcode <span class="font-bold text-gray-900 dark:text-white">${barcode}</span> is not registered in our database.</p>
+                </div>
+                <button onclick="verifyAnother()" class="text-gray-400 hover:text-gray-900 dark:hover:text-white transition">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                </button>
+            </div>
+            <div class="mt-8 p-5 rounded-xl bg-red-50 dark:bg-red-900/30 border border-red-200 dark:border-red-800">
+                <h5 class="font-bold text-red-800 dark:text-red-300 mb-2">⚠️ Warning</h5>
+                <p class="text-sm text-red-700 dark:text-red-400 font-medium">This product could be counterfeit. Do not consume it. Please report it to help protect the community.</p>
+            </div>
+            <div class="mt-8 flex flex-col sm:flex-row justify-start gap-4">
+                <button onclick="verifyAnother()" class="bg-gray-900 dark:bg-white text-white dark:text-gray-900 font-bold py-3 px-8 rounded-xl shadow-lg hover:shadow-xl transition">Try Another</button>
+                <button onclick="openReportForm('${barcode}', '')" class="bg-red-500 text-white font-bold py-3 px-8 rounded-xl shadow-lg hover:bg-red-600 transition">Report as Fake</button>
+            </div>
+        </div>`;
 }
 
 function calculateAuthenticityScore(result) {
@@ -340,36 +437,43 @@ function displayResults(result, barcode) {
     let borderClass = score === 'A' ? 'border-green-500' : 'border-red-500';
 
     const issuesHtml = issues.length > 0 ? `
-        <div class="mt-6 p-4 rounded-lg bg-red-50 dark:bg-red-900/30 border border-red-200 dark:border-red-800">
-            <h5 class="font-semibold text-red-800 dark:text-red-300 mb-2">Issues Detected:</h5>
-            <ul class="list-disc list-inside text-sm text-red-700 dark:text-red-400 space-y-1">${issues.map(i => `<li>${i}</li>`).join('')}</ul>
+        <div class="mt-8 p-5 rounded-xl bg-red-50 dark:bg-red-900/30 border border-red-200 dark:border-red-800">
+            <h5 class="font-bold text-red-800 dark:text-red-300 mb-2">Security Issues Detected:</h5>
+            <ul class="list-disc list-inside text-sm text-red-700 dark:text-red-400 space-y-2 font-medium">${issues.map(i => `<li>${i}</li>`).join('')}</ul>
         </div>` : '';
 
     resultCard.innerHTML = `
-        <div class="p-8 border-l-4 ${borderClass} rounded-r-xl bg-white dark:bg-gray-800">
-            <div class="mb-6">
-                <h4 class="text-xl font-bold ${statusColor} mb-2">${score === 'A' ? '✅' : '❌'} Authenticity Score: ${score} - ${statusMessage}</h4>
-                <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-1">${result.name}</h2>
-                <p class="text-sm text-gray-500 dark:text-gray-400">Barcode: ${barcode}</p>
+        <div class="p-8 border-l-8 ${borderClass} bg-white dark:bg-gray-800 rounded-r-xl">
+            <div class="mb-8 border-b border-gray-100 dark:border-gray-700 pb-6 flex justify-between items-start">
+                <div>
+                    <h4 class="text-xl font-extrabold ${statusColor} mb-2 uppercase tracking-wide">${score === 'A' ? '✅' : '❌'} Score: ${score} - ${statusMessage}</h4>
+                    <h2 class="text-3xl font-black text-gray-900 dark:text-white mb-1">${result.name}</h2>
+                    <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Barcode: ${barcode}</p>
+                </div>
+                <button onclick="verifyAnother()" class="text-gray-400 hover:text-gray-900 dark:hover:text-white transition">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                </button>
             </div>
             
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8 border-b border-gray-100 dark:border-gray-700 pb-6 text-gray-900 dark:text-white">
-                <div><p class="text-sm text-gray-500 dark:text-gray-400 font-medium mb-1">Manufacturer</p><p class="text-lg font-medium">${result.manufacturer}</p></div>
-                <div><p class="text-sm text-gray-500 dark:text-gray-400 font-medium mb-1">Batch Number</p><p class="text-lg font-medium">${result.batch}</p></div>
-                <div><p class="text-sm text-gray-500 dark:text-gray-400 font-medium mb-1">Expiry Date</p><p class="text-lg font-medium">${result.expiry}</p></div>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8 text-gray-900 dark:text-white">
+                <div class="bg-gray-50 dark:bg-gray-900 p-4 rounded-xl border border-gray-100 dark:border-gray-700"><p class="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase mb-1">Manufacturer</p><p class="text-lg font-bold">${result.manufacturer}</p></div>
+                <div class="bg-gray-50 dark:bg-gray-900 p-4 rounded-xl border border-gray-100 dark:border-gray-700"><p class="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase mb-1">Batch Number</p><p class="text-lg font-bold">${result.batch}</p></div>
+                <div class="bg-gray-50 dark:bg-gray-900 p-4 rounded-xl border border-gray-100 dark:border-gray-700"><p class="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase mb-1">Expiry Date</p><p class="text-lg font-bold ${result.status==='expired'?'text-red-500':''}">${result.expiry}</p></div>
             </div>
             
             <div class="space-y-4">
-                <div class="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg p-4"><p class="font-bold text-green-900 dark:text-green-300">Purpose:</p><p class="text-green-800 dark:text-green-400 text-sm">${result.purpose}</p></div>
-                <div class="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4"><p class="font-bold text-blue-900 dark:text-blue-300">Dosage:</p><p class="text-blue-800 dark:text-blue-400 text-sm">${result.dosage}</p></div>
-                <div class="bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg p-4"><p class="font-bold text-yellow-900 dark:text-yellow-300">Who Can Use:</p><p class="text-yellow-800 dark:text-yellow-400 text-sm">${result.whoCanUse}</p></div>
-                <div class="bg-teal-50 dark:bg-teal-900/20 border border-teal-200 dark:border-teal-800 rounded-lg p-4"><p class="font-bold text-teal-900 dark:text-teal-300">Precaution:</p><p class="text-teal-800 dark:text-teal-400 text-sm">${result.precaution}</p></div>
-                <div class="bg-orange-50 dark:bg-orange-900/20 border border-orange-200 dark:border-orange-800 rounded-lg p-4"><p class="font-bold text-orange-900 dark:text-orange-300">Side Effects:</p><p class="text-orange-800 dark:text-orange-400 text-sm">${result.sideEffects}</p></div>
+                <div class="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-xl"><p class="font-bold text-blue-900 dark:text-blue-300 mb-1">Purpose:</p><p class="text-blue-800 dark:text-blue-400 text-sm font-medium">${result.purpose}</p></div>
+                <div class="bg-green-50 dark:bg-green-900/20 p-4 rounded-xl"><p class="font-bold text-green-900 dark:text-green-300 mb-1">Dosage:</p><p class="text-green-800 dark:text-green-400 text-sm font-medium">${result.dosage}</p></div>
+                <div class="bg-purple-50 dark:bg-purple-900/20 p-4 rounded-xl"><p class="font-bold text-purple-900 dark:text-purple-300 mb-1">Who Can Use:</p><p class="text-purple-800 dark:text-purple-400 text-sm font-medium">${result.whoCanUse}</p></div>
+                <div class="bg-yellow-50 dark:bg-yellow-900/20 p-4 rounded-xl"><p class="font-bold text-yellow-900 dark:text-yellow-300 mb-1">Precaution:</p><p class="text-yellow-800 dark:text-yellow-400 text-sm font-medium">${result.precaution}</p></div>
+                <div class="bg-orange-50 dark:bg-orange-900/20 p-4 rounded-xl"><p class="font-bold text-orange-900 dark:text-orange-300 mb-1">Side Effects:</p><p class="text-orange-800 dark:text-orange-400 text-sm font-medium">${result.sideEffects}</p></div>
             </div>
+
             ${issuesHtml}
-            <div class="mt-8 flex flex-col md:flex-row justify-center gap-4">
-                <button onclick="verifyAnother()" class="bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 px-8 rounded-lg shadow-md transition">Verify Another Medicine</button>
-                <button onclick="openReportForm('${barcode}', '${result.batch}')" class="bg-red-50 dark:bg-red-900/30 text-red-600 dark:text-red-400 border border-red-200 dark:border-red-800 font-medium py-3 px-8 rounded-lg transition">Report as Fake</button>
+
+            <div class="mt-10 flex flex-col sm:flex-row justify-center gap-4">
+                <button onclick="verifyAnother()" class="bg-gray-900 dark:bg-white text-white dark:text-gray-900 font-bold py-3 px-8 rounded-xl shadow-lg hover:shadow-xl transition">Verify Another</button>
+                <button onclick="openReportForm('${barcode}', '${result.batch}')" class="bg-red-50 dark:bg-red-900/30 text-red-600 dark:text-red-400 font-bold py-3 px-8 rounded-xl transition hover:bg-red-100 dark:hover:bg-red-900/50 border border-red-200 dark:border-red-800">Report as Fake</button>
             </div>
         </div>`;
 }
@@ -378,9 +482,6 @@ function verifyAnother() {
     document.getElementById('barcode-input').value = '';
     document.getElementById('result-card').classList.remove('show');
     document.getElementById('results-section').classList.add('hidden');
-    
-    const instSection = document.getElementById('instructions-section');
-    if(instSection) instSection.classList.remove('hidden');
-    
+    document.getElementById('instructions-section').classList.remove('hidden');
     if (scannerActive) stopScanner();
 }
