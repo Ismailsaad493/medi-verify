@@ -2,8 +2,8 @@ let scannerActive = false;
 let quaggaInitialized = false;
 
 // --- DYNAMIC SVG ICONS FOR DARK MODE ---
-const sunIcon = `<svg class="w-5 h-5 text-yellow-500" fill="currentColor" viewBox="0 0 20 20"><path d="M10 2a1 1 0 011 1v1a1 1 0 11-2 0V3a1 1 0 011-1zm4.22 4.22a1 1 0 011.415 0l.708.708a1 1 0 01-1.414 1.414l-.708-.708a1 1 0 010-1.414zM18 10a1 1 0 01-1 1h-1a1 1 0 110-2h1a1 1 0 011 1zM14.22 15.78a1 1 0 010 1.415l-.708.708a1 1 0 01-1.414-1.414l.708-.708a1 1 0 011.415 0zM10 16a1 1 0 011 1v1a1 1 0 11-2 0v-1a1 1 0 011-1zm-4.22-1.42a1 1 0 01-1.415 0l-.708-.708a1 1 0 011.414-1.414l.708.708a1 1 0 010 1.414zM4 10a1 1 0 01-1 1H2a1 1 0 110-2h1a1 1 0 011 1zM5.78 5.78a1 1 0 010-1.415l.708-.708a1 1 0 011.414 1.414l-.708.708a1 1 0 01-1.415 0z"/><path fill-rule="evenodd" d="M10 5a5 5 0 100 10 5 5 0 000-10zm0 8a3 3 0 110-6 3 3 0 010 6z" clip-rule="evenodd"/></svg>`;
-const moonIcon = `<svg class="w-5 h-5 text-gray-700 dark:text-gray-300" fill="currentColor" viewBox="0 0 20 20"><path d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z"/></svg>`;
+const sunIcon = `<svg class="w-4 h-4 sm:w-5 sm:h-5 text-yellow-500" fill="currentColor" viewBox="0 0 20 20"><path d="M10 2a1 1 0 011 1v1a1 1 0 11-2 0V3a1 1 0 011-1zm4.22 4.22a1 1 0 011.415 0l.708.708a1 1 0 01-1.414 1.414l-.708-.708a1 1 0 010-1.414zM18 10a1 1 0 01-1 1h-1a1 1 0 110-2h1a1 1 0 011 1zM14.22 15.78a1 1 0 010 1.415l-.708.708a1 1 0 01-1.414-1.414l.708-.708a1 1 0 011.415 0zM10 16a1 1 0 011 1v1a1 1 0 11-2 0v-1a1 1 0 011-1zm-4.22-1.42a1 1 0 01-1.415 0l-.708-.708a1 1 0 011.414-1.414l.708.708a1 1 0 010 1.414zM4 10a1 1 0 01-1 1H2a1 1 0 110-2h1a1 1 0 011 1zM5.78 5.78a1 1 0 010-1.415l.708-.708a1 1 0 011.414 1.414l-.708.708a1 1 0 01-1.415 0z"/><path fill-rule="evenodd" d="M10 5a5 5 0 100 10 5 5 0 000-10zm0 8a3 3 0 110-6 3 3 0 010 6z" clip-rule="evenodd"/></svg>`;
+const moonIcon = `<svg class="w-4 h-4 sm:w-5 sm:h-5 text-gray-700 dark:text-gray-300" fill="currentColor" viewBox="0 0 20 20"><path d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z"/></svg>`;
 
 function toggleTheme() {
     const htmlObj = document.documentElement;
@@ -37,7 +37,6 @@ window.onload = function() {
     }
 };
 
-// --- DATABASE SETUP ---
 let usersDatabase = JSON.parse(localStorage.getItem('usersDB')) || {
     "admin@mediverify.com": { name: "System Admin", mobile: "0000000000", org: "MediVerify Corp", role: "Manufacturer", license: "SYS-001", password: "admin123" }
 };
@@ -107,17 +106,17 @@ function toggleAuthMode(mode) {
     const tabLogin = document.getElementById('tab-login');
     const tabRegister = document.getElementById('tab-register');
     
-    tabLogin.className = "w-1/2 py-5 text-center font-bold text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 transition outline-none";
-    tabRegister.className = "w-1/2 py-5 text-center font-bold text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 transition outline-none";
+    tabLogin.className = "w-1/2 py-4 sm:py-5 text-center font-bold text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 transition outline-none text-sm sm:text-base";
+    tabRegister.className = "w-1/2 py-4 sm:py-5 text-center font-bold text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 transition outline-none text-sm sm:text-base";
 
     if(mode === 'login') {
         document.getElementById('form-login').classList.remove('hidden');
-        tabLogin.className = "w-1/2 py-5 text-center font-bold bg-white dark:bg-gray-800 text-[#6b21a8] dark:text-[#a855f7] border-b-2 border-[#6b21a8] dark:border-[#a855f7] transition outline-none";
+        tabLogin.className = "w-1/2 py-4 sm:py-5 text-center font-bold bg-white dark:bg-gray-800 text-[#6b21a8] dark:text-[#a855f7] border-b-2 border-[#6b21a8] dark:border-[#a855f7] transition outline-none text-sm sm:text-base";
         document.getElementById('login-error').classList.add('hidden');
         document.getElementById('form-login').reset();
     } else {
         document.getElementById('form-register').classList.remove('hidden');
-        tabRegister.className = "w-1/2 py-5 text-center font-bold bg-white dark:bg-gray-800 text-[#6b21a8] dark:text-[#a855f7] border-b-2 border-[#6b21a8] dark:border-[#a855f7] transition outline-none";
+        tabRegister.className = "w-1/2 py-4 sm:py-5 text-center font-bold bg-white dark:bg-gray-800 text-[#6b21a8] dark:text-[#a855f7] border-b-2 border-[#6b21a8] dark:border-[#a855f7] transition outline-none text-sm sm:text-base";
         document.getElementById('form-register').reset();
         document.getElementById('form-register-otp').reset();
         pendingRegistration = null;
@@ -215,21 +214,21 @@ function renderMedicineList() {
         const scanCount = med.scans ? med.scans.length : 0;
 
         row.innerHTML = `
-            <td class="px-5 py-3 whitespace-nowrap text-sm font-bold text-gray-900 dark:text-gray-100">${barcode}</td>
-            <td class="px-5 py-3 whitespace-nowrap text-sm text-gray-600 dark:text-gray-300">${med.name}</td>
-            <td class="px-5 py-3 whitespace-nowrap text-sm">
-                <span class="px-2.5 py-1 inline-flex text-[10px] font-extrabold rounded-full tracking-wide ${statusColor}">
+            <td class="px-4 sm:px-5 py-3 sm:py-4 whitespace-nowrap text-xs sm:text-sm font-bold text-gray-900 dark:text-gray-100">${barcode}</td>
+            <td class="px-4 sm:px-5 py-3 sm:py-4 whitespace-nowrap text-xs sm:text-sm text-gray-600 dark:text-gray-300 truncate max-w-[120px] sm:max-w-none">${med.name}</td>
+            <td class="px-4 sm:px-5 py-3 sm:py-4 whitespace-nowrap text-xs sm:text-sm">
+                <span class="px-2 sm:px-2.5 py-0.5 sm:py-1 inline-flex text-[8px] sm:text-[10px] font-extrabold rounded-full tracking-wide ${statusColor}">
                     ${med.status.toUpperCase()}
                 </span>
             </td>
-            <td class="px-5 py-3 whitespace-nowrap text-center text-sm">
-                <button onclick="viewScanHistory('${barcode}')" class="text-blue-600 hover:text-blue-800 bg-blue-50 hover:bg-blue-100 dark:bg-blue-900/20 dark:text-blue-400 dark:hover:bg-blue-900/40 px-3 py-1.5 rounded-lg transition font-bold text-xs">
-                    View Log (${scanCount})
+            <td class="px-4 sm:px-5 py-3 sm:py-4 whitespace-nowrap text-center text-xs sm:text-sm">
+                <button onclick="viewScanHistory('${barcode}')" class="text-blue-600 hover:text-blue-800 bg-blue-50 hover:bg-blue-100 dark:bg-blue-900/20 dark:text-blue-400 dark:hover:bg-blue-900/40 px-2 sm:px-3 py-1 sm:py-1.5 rounded-lg transition font-bold text-[10px] sm:text-xs">
+                    Logs (${scanCount})
                 </button>
             </td>
-            <td class="px-5 py-3 whitespace-nowrap text-right text-sm font-medium">
-                <button onclick="editMedicine('${barcode}')" class="text-[#6b21a8] hover:text-[#581c87] bg-purple-50 hover:bg-purple-100 dark:bg-purple-900/30 dark:text-[#a855f7] dark:hover:bg-purple-900/50 px-4 py-1.5 rounded-lg transition font-bold text-xs shadow-sm">
-                    Edit / View
+            <td class="px-4 sm:px-5 py-3 sm:py-4 whitespace-nowrap text-right text-xs sm:text-sm font-medium">
+                <button onclick="editMedicine('${barcode}')" class="text-[#6b21a8] hover:text-[#581c87] bg-purple-50 hover:bg-purple-100 dark:bg-purple-900/30 dark:text-[#a855f7] dark:hover:bg-purple-900/50 px-3 sm:px-4 py-1 sm:py-1.5 rounded-lg transition font-bold text-[10px] sm:text-xs shadow-sm">
+                    Edit
                 </button>
             </td>`;
         tbody.appendChild(row);
@@ -282,10 +281,10 @@ function viewScanHistory(barcode) {
     const tbody = document.getElementById('scan-history-body');
     tbody.innerHTML = '';
     if (!med.scans || med.scans.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="2" class="px-8 py-5 text-center text-sm font-medium text-gray-500">No scans recorded yet.</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="2" class="px-4 sm:px-8 py-3 sm:py-5 text-center text-xs sm:text-sm font-medium text-gray-500">No scans recorded yet.</td></tr>';
     } else {
         med.scans.forEach(scan => {
-            tbody.innerHTML += `<tr><td class="px-8 py-5 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-gray-100">${new Date(scan.timestamp).toLocaleString()}</td><td class="px-8 py-5 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">${scan.location}</td></tr>`;
+            tbody.innerHTML += `<tr><td class="px-4 sm:px-8 py-3 sm:py-5 whitespace-nowrap text-xs sm:text-sm font-medium text-gray-900 dark:text-gray-100">${new Date(scan.timestamp).toLocaleString()}</td><td class="px-4 sm:px-8 py-3 sm:py-5 whitespace-nowrap text-xs sm:text-sm text-gray-500 dark:text-gray-400">${scan.location}</td></tr>`;
         });
     }
     switchView('admin-history');
@@ -329,7 +328,7 @@ function sendChatMessage() {
     setTimeout(() => {
         const keywords = message.toLowerCase().split(/[\s,]+/); let matches = [];
         for (const [b, med] of Object.entries(medicineDatabase)) { if (med.purpose && med.status !== 'recalled' && keywords.some(k => k.length > 3 && med.purpose.toLowerCase().includes(k))) matches.push(med); }
-        let response = matches.length > 0 ? "<p class='mb-2'>Matches:</p>" + Array.from(new Set(matches.map(m => m.name))).map(n => matches.find(m => m.name === n)).map(med => `<div class="bg-white dark:bg-gray-700 rounded-xl shadow-sm border border-gray-100 dark:border-gray-600 p-3 mt-2"><strong>💊 ${med.name}</strong><br><span class="text-sm text-gray-600 dark:text-gray-300"><em>Purpose:</em> ${med.purpose}</span></div>`).join('') : "No medicines found for those symptoms.";
+        let response = matches.length > 0 ? "<p class='mb-2'>Matches:</p>" + Array.from(new Set(matches.map(m => m.name))).map(n => matches.find(m => m.name === n)).map(med => `<div class="bg-white dark:bg-gray-700 rounded-xl shadow-sm border border-gray-100 dark:border-gray-600 p-3 mt-2"><strong>💊 ${med.name}</strong><br><span class="text-xs sm:text-sm text-gray-600 dark:text-gray-300"><em>Purpose:</em> ${med.purpose}</span></div>`).join('') : "No medicines found for those symptoms.";
         addMessageToChat('bot', response);
     }, 800);
 }
@@ -337,7 +336,7 @@ function sendChatMessage() {
 function addMessageToChat(sender, text) {
     const chatWindow = document.getElementById('chat-window'); const messageDiv = document.createElement('div');
     messageDiv.className = sender === 'user' ? 'flex items-end justify-end' : 'flex items-start';
-    messageDiv.innerHTML = `<div class="${sender === 'user' ? 'bg-[#6b21a8] text-white rounded-tr-none' : 'bg-[#f3e8ff] dark:bg-purple-900/40 text-[#6b21a8] dark:text-purple-100 rounded-tl-none border border-purple-100 dark:border-purple-800'} rounded-2xl p-4 max-w-[85%] shadow-sm font-medium">${text}</div>`;
+    messageDiv.innerHTML = `<div class="${sender === 'user' ? 'bg-[#6b21a8] text-white rounded-tr-none' : 'bg-[#f3e8ff] dark:bg-purple-900/40 text-[#6b21a8] dark:text-purple-100 rounded-tl-none border border-purple-100 dark:border-purple-800'} rounded-2xl p-3 sm:p-4 max-w-[90%] sm:max-w-[85%] shadow-sm font-medium text-sm sm:text-base">${text}</div>`;
     chatWindow.appendChild(messageDiv); chatWindow.scrollTop = chatWindow.scrollHeight;
 }
 
@@ -383,7 +382,7 @@ function verifyBarcode(barcode) {
     const resultCard = document.getElementById('result-card');
     resultCard.classList.add('show');
     
-    resultCard.innerHTML = `<div class="text-center py-16"><div class="animate-spin rounded-full h-12 w-12 border-b-4 border-[#6b21a8] mx-auto mb-4"></div><p class="text-gray-600 dark:text-gray-300 font-bold">Querying Authentic Databases...</p></div>`;
+    resultCard.innerHTML = `<div class="text-center py-10 sm:py-16"><div class="animate-spin rounded-full h-10 w-10 sm:h-12 sm:w-12 border-b-4 border-[#6b21a8] mx-auto mb-4"></div><p class="text-sm sm:text-base text-gray-600 dark:text-gray-300 font-bold">Querying Authentic Databases...</p></div>`;
     
     setTimeout(() => {
         const result = medicineDatabase[barcode];
@@ -400,23 +399,23 @@ function verifyBarcode(barcode) {
 function displayUnknownResult(barcode) {
     const resultCard = document.getElementById('result-card');
     resultCard.innerHTML = `
-        <div class="p-8 border-l-8 border-red-500 bg-white dark:bg-gray-800 rounded-r-xl">
+        <div class="p-5 sm:p-8 border-l-4 sm:border-l-8 border-red-500 bg-white dark:bg-gray-800 rounded-r-xl">
             <div class="flex items-start justify-between">
                 <div>
-                    <h4 class="text-2xl font-extrabold text-red-600 dark:text-red-400 mb-2 tracking-wide">❌ UNKNOWN BARCODE</h4>
-                    <p class="text-gray-600 dark:text-gray-300 font-medium text-lg">Barcode <span class="font-bold text-gray-900 dark:text-white">${barcode}</span> is not registered in our database.</p>
+                    <h4 class="text-xl sm:text-2xl font-extrabold text-red-600 dark:text-red-400 mb-1.5 sm:mb-2 tracking-wide">❌ UNKNOWN BARCODE</h4>
+                    <p class="text-gray-600 dark:text-gray-300 font-medium text-sm sm:text-lg break-all">Barcode <span class="font-bold text-gray-900 dark:text-white">${barcode}</span> is not registered.</p>
                 </div>
                 <button onclick="verifyAnother()" class="text-gray-400 hover:text-gray-900 dark:hover:text-white transition">
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                    <svg class="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
                 </button>
             </div>
-            <div class="mt-8 p-5 rounded-xl bg-red-50 dark:bg-red-900/30 border border-red-200 dark:border-red-800">
-                <h5 class="font-bold text-red-800 dark:text-red-300 mb-2">⚠️ Warning</h5>
-                <p class="text-sm text-red-700 dark:text-red-400 font-medium">This product could be counterfeit. Do not consume it. Please report it to help protect the community.</p>
+            <div class="mt-6 sm:mt-8 p-4 sm:p-5 rounded-xl bg-red-50 dark:bg-red-900/30 border border-red-200 dark:border-red-800">
+                <h5 class="font-bold text-red-800 dark:text-red-300 mb-1.5 sm:mb-2 text-sm sm:text-base">⚠️ Warning</h5>
+                <p class="text-xs sm:text-sm text-red-700 dark:text-red-400 font-medium">This product could be counterfeit. Do not consume it. Please report it to help protect the community.</p>
             </div>
-            <div class="mt-8 flex flex-col sm:flex-row justify-start gap-4">
-                <button onclick="verifyAnother()" class="bg-gray-900 dark:bg-white text-white dark:text-gray-900 font-bold py-3 px-8 rounded-xl shadow-lg hover:shadow-xl transition">Try Another</button>
-                <button onclick="openReportForm('${barcode}', '')" class="bg-red-500 text-white font-bold py-3 px-8 rounded-xl shadow-lg hover:bg-red-600 transition">Report as Fake</button>
+            <div class="mt-6 sm:mt-8 flex flex-col sm:flex-row justify-start gap-3 sm:gap-4">
+                <button onclick="verifyAnother()" class="bg-gray-900 dark:bg-white text-white dark:text-gray-900 font-bold py-2.5 sm:py-3 px-6 sm:px-8 rounded-xl shadow-lg hover:shadow-xl transition text-sm sm:text-base">Try Another</button>
+                <button onclick="openReportForm('${barcode}', '')" class="bg-red-500 text-white font-bold py-2.5 sm:py-3 px-6 sm:px-8 rounded-xl shadow-lg hover:bg-red-600 transition text-sm sm:text-base">Report as Fake</button>
             </div>
         </div>`;
 }
@@ -437,51 +436,43 @@ function displayResults(result, barcode) {
     let borderClass = score === 'A' ? 'border-green-500' : 'border-red-500';
 
     const issuesHtml = issues.length > 0 ? `
-        <div class="mt-8 p-5 rounded-xl bg-red-50 dark:bg-red-900/30 border border-red-200 dark:border-red-800">
-            <h5 class="font-bold text-red-800 dark:text-red-300 mb-2">Security Issues Detected:</h5>
-            <ul class="list-disc list-inside text-sm text-red-700 dark:text-red-400 space-y-2 font-medium">${issues.map(i => `<li>${i}</li>`).join('')}</ul>
+        <div class="mt-6 sm:mt-8 p-4 sm:p-5 rounded-xl bg-red-50 dark:bg-red-900/30 border border-red-200 dark:border-red-800">
+            <h5 class="font-bold text-red-800 dark:text-red-300 mb-1.5 sm:mb-2 text-sm sm:text-base">Security Issues Detected:</h5>
+            <ul class="list-disc list-inside text-xs sm:text-sm text-red-700 dark:text-red-400 space-y-1.5 sm:space-y-2 font-medium">${issues.map(i => `<li>${i}</li>`).join('')}</ul>
         </div>` : '';
 
     resultCard.innerHTML = `
-        <div class="p-8 border-l-8 ${borderClass} bg-white dark:bg-gray-800 rounded-r-xl">
-            <div class="mb-8 border-b border-gray-100 dark:border-gray-700 pb-6 flex justify-between items-start">
+        <div class="p-5 sm:p-8 border-l-4 sm:border-l-8 ${borderClass} bg-white dark:bg-gray-800 rounded-r-xl">
+            <div class="mb-6 sm:mb-8 border-b border-gray-100 dark:border-gray-700 pb-4 sm:pb-6 flex justify-between items-start">
                 <div>
-                    <h4 class="text-xl font-extrabold ${statusColor} mb-2 uppercase tracking-wide">${score === 'A' ? '✅' : '❌'} Score: ${score} - ${statusMessage}</h4>
-                    <h2 class="text-3xl font-black text-gray-900 dark:text-white mb-1">${result.name}</h2>
-                    <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Barcode: ${barcode}</p>
+                    <h4 class="text-lg sm:text-xl font-extrabold ${statusColor} mb-1 sm:mb-2 uppercase tracking-wide">${score === 'A' ? '✅' : '❌'} Score: ${score} - ${statusMessage}</h4>
+                    <h2 class="text-2xl sm:text-3xl font-black text-gray-900 dark:text-white mb-1">${result.name}</h2>
+                    <p class="text-xs sm:text-sm font-medium text-gray-500 dark:text-gray-400 break-all">Barcode: ${barcode}</p>
                 </div>
                 <button onclick="verifyAnother()" class="text-gray-400 hover:text-gray-900 dark:hover:text-white transition">
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                    <svg class="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
                 </button>
             </div>
             
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8 text-gray-900 dark:text-white">
-                <div class="bg-gray-50 dark:bg-gray-900 p-4 rounded-xl border border-gray-100 dark:border-gray-700"><p class="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase mb-1">Manufacturer</p><p class="text-lg font-bold">${result.manufacturer}</p></div>
-                <div class="bg-gray-50 dark:bg-gray-900 p-4 rounded-xl border border-gray-100 dark:border-gray-700"><p class="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase mb-1">Batch Number</p><p class="text-lg font-bold">${result.batch}</p></div>
-                <div class="bg-gray-50 dark:bg-gray-900 p-4 rounded-xl border border-gray-100 dark:border-gray-700"><p class="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase mb-1">Expiry Date</p><p class="text-lg font-bold ${result.status==='expired'?'text-red-500':''}">${result.expiry}</p></div>
+            <div class="grid grid-cols-2 sm:grid-cols-3 gap-3 sm:gap-6 mb-6 sm:mb-8 text-gray-900 dark:text-white">
+                <div class="bg-gray-50 dark:bg-gray-900 p-3 sm:p-4 rounded-xl border border-gray-100 dark:border-gray-700"><p class="text-[10px] sm:text-xs font-bold text-gray-500 dark:text-gray-400 uppercase mb-1">Manufacturer</p><p class="text-sm sm:text-lg font-bold truncate">${result.manufacturer}</p></div>
+                <div class="bg-gray-50 dark:bg-gray-900 p-3 sm:p-4 rounded-xl border border-gray-100 dark:border-gray-700"><p class="text-[10px] sm:text-xs font-bold text-gray-500 dark:text-gray-400 uppercase mb-1">Batch</p><p class="text-sm sm:text-lg font-bold truncate">${result.batch}</p></div>
+                <div class="col-span-2 sm:col-span-1 bg-gray-50 dark:bg-gray-900 p-3 sm:p-4 rounded-xl border border-gray-100 dark:border-gray-700"><p class="text-[10px] sm:text-xs font-bold text-gray-500 dark:text-gray-400 uppercase mb-1">Expiry Date</p><p class="text-sm sm:text-lg font-bold ${result.status==='expired'?'text-red-500':''} truncate">${result.expiry}</p></div>
             </div>
             
-            <div class="space-y-4">
-                <div class="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-xl"><p class="font-bold text-blue-900 dark:text-blue-300 mb-1">Purpose:</p><p class="text-blue-800 dark:text-blue-400 text-sm font-medium">${result.purpose}</p></div>
-                <div class="bg-green-50 dark:bg-green-900/20 p-4 rounded-xl"><p class="font-bold text-green-900 dark:text-green-300 mb-1">Dosage:</p><p class="text-green-800 dark:text-green-400 text-sm font-medium">${result.dosage}</p></div>
-                <div class="bg-purple-50 dark:bg-purple-900/20 p-4 rounded-xl"><p class="font-bold text-purple-900 dark:text-purple-300 mb-1">Who Can Use:</p><p class="text-purple-800 dark:text-purple-400 text-sm font-medium">${result.whoCanUse}</p></div>
-                <div class="bg-yellow-50 dark:bg-yellow-900/20 p-4 rounded-xl"><p class="font-bold text-yellow-900 dark:text-yellow-300 mb-1">Precaution:</p><p class="text-yellow-800 dark:text-yellow-400 text-sm font-medium">${result.precaution}</p></div>
-                <div class="bg-orange-50 dark:bg-orange-900/20 p-4 rounded-xl"><p class="font-bold text-orange-900 dark:text-orange-300 mb-1">Side Effects:</p><p class="text-orange-800 dark:text-orange-400 text-sm font-medium">${result.sideEffects}</p></div>
+            <div class="space-y-3 sm:space-y-4">
+                <div class="bg-blue-50 dark:bg-blue-900/20 p-3 sm:p-4 rounded-xl"><p class="font-bold text-blue-900 dark:text-blue-300 mb-0.5 sm:mb-1 text-xs sm:text-base">Purpose:</p><p class="text-blue-800 dark:text-blue-400 text-xs sm:text-sm font-medium">${result.purpose}</p></div>
+                <div class="bg-green-50 dark:bg-green-900/20 p-3 sm:p-4 rounded-xl"><p class="font-bold text-green-900 dark:text-green-300 mb-0.5 sm:mb-1 text-xs sm:text-base">Dosage:</p><p class="text-green-800 dark:text-green-400 text-xs sm:text-sm font-medium">${result.dosage}</p></div>
+                <div class="bg-purple-50 dark:bg-purple-900/20 p-3 sm:p-4 rounded-xl"><p class="font-bold text-purple-900 dark:text-purple-300 mb-0.5 sm:mb-1 text-xs sm:text-base">Who Can Use:</p><p class="text-purple-800 dark:text-purple-400 text-xs sm:text-sm font-medium">${result.whoCanUse}</p></div>
+                <div class="bg-yellow-50 dark:bg-yellow-900/20 p-3 sm:p-4 rounded-xl"><p class="font-bold text-yellow-900 dark:text-yellow-300 mb-0.5 sm:mb-1 text-xs sm:text-base">Precaution:</p><p class="text-yellow-800 dark:text-yellow-400 text-xs sm:text-sm font-medium">${result.precaution}</p></div>
+                <div class="bg-orange-50 dark:bg-orange-900/20 p-3 sm:p-4 rounded-xl"><p class="font-bold text-orange-900 dark:text-orange-300 mb-0.5 sm:mb-1 text-xs sm:text-base">Side Effects:</p><p class="text-orange-800 dark:text-orange-400 text-xs sm:text-sm font-medium">${result.sideEffects}</p></div>
             </div>
 
             ${issuesHtml}
 
-            <div class="mt-10 flex flex-col sm:flex-row justify-center gap-4">
-                <button onclick="verifyAnother()" class="bg-gray-900 dark:bg-white text-white dark:text-gray-900 font-bold py-3 px-8 rounded-xl shadow-lg hover:shadow-xl transition">Verify Another</button>
-                <button onclick="openReportForm('${barcode}', '${result.batch}')" class="bg-red-50 dark:bg-red-900/30 text-red-600 dark:text-red-400 font-bold py-3 px-8 rounded-xl transition hover:bg-red-100 dark:hover:bg-red-900/50 border border-red-200 dark:border-red-800">Report as Fake</button>
+            <div class="mt-6 sm:mt-10 flex flex-col sm:flex-row justify-center gap-3 sm:gap-4">
+                <button onclick="verifyAnother()" class="bg-gray-900 dark:bg-white text-white dark:text-gray-900 font-bold py-2.5 sm:py-3 px-6 sm:px-8 rounded-xl shadow-lg hover:shadow-xl transition text-sm sm:text-base">Verify Another</button>
+                <button onclick="openReportForm('${barcode}', '${result.batch}')" class="bg-red-50 dark:bg-red-900/30 text-red-600 dark:text-red-400 font-bold py-2.5 sm:py-3 px-6 sm:px-8 rounded-xl transition hover:bg-red-100 dark:hover:bg-red-900/50 border border-red-200 dark:border-red-800 text-sm sm:text-base">Report as Fake</button>
             </div>
         </div>`;
-}
-
-function verifyAnother() {
-    document.getElementById('barcode-input').value = '';
-    document.getElementById('result-card').classList.remove('show');
-    document.getElementById('results-section').classList.add('hidden');
-    document.getElementById('instructions-section').classList.remove('hidden');
-    if (scannerActive) stopScanner();
 }
