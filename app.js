@@ -61,15 +61,16 @@ function switchView(viewName) {
     document.querySelectorAll('.view-section').forEach(el => el.classList.add('hidden'));
     document.getElementById('view-' + viewName).classList.remove('hidden');
     
-    const landingLinks = document.getElementById('nav-landing-links');
-    if(landingLinks) {
-        if (viewName === 'home') {
-            landingLinks.classList.remove('hidden');
-            landingLinks.classList.add('md:flex');
-        } else {
-            landingLinks.classList.add('hidden');
-            landingLinks.classList.remove('md:flex');
-        }
+    // Proper handling to fix the mobile nav bug
+    const desktopLinks = document.getElementById('nav-landing-links-desktop');
+    const mobileLinks = document.getElementById('nav-landing-links-mobile');
+    
+    if (viewName === 'home') {
+        if(desktopLinks) desktopLinks.style.display = '';
+        if(mobileLinks) mobileLinks.style.display = '';
+    } else {
+        if(desktopLinks) desktopLinks.style.display = 'none';
+        if(mobileLinks) mobileLinks.style.display = 'none';
     }
 
     if (viewName === 'admin-list') renderMedicineList();
@@ -475,4 +476,12 @@ function displayResults(result, barcode) {
                 <button onclick="openReportForm('${barcode}', '${result.batch}')" class="bg-red-50 dark:bg-red-900/30 text-red-600 dark:text-red-400 font-bold py-2.5 sm:py-3 px-6 sm:px-8 rounded-xl transition hover:bg-red-100 dark:hover:bg-red-900/50 border border-red-200 dark:border-red-800 text-sm sm:text-base">Report as Fake</button>
             </div>
         </div>`;
+}
+
+function verifyAnother() {
+    document.getElementById('barcode-input').value = '';
+    document.getElementById('result-card').classList.remove('show');
+    document.getElementById('results-section').classList.add('hidden');
+    document.getElementById('instructions-section').classList.remove('hidden');
+    if (scannerActive) stopScanner();
 }
