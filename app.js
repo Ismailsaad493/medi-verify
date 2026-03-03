@@ -16,6 +16,10 @@ function toggleTheme() {
         localStorage.setItem('theme', 'dark');
         document.getElementById('theme-icon').innerHTML = sunIcon;
     }
+    
+    if (!document.getElementById('view-admin-dashboard').classList.contains('hidden')) {
+        renderDashboardChart();
+    }
 }
 
 window.onload = function() {
@@ -31,7 +35,7 @@ window.onload = function() {
 
     updateNavVisibility();
     if (sessionStorage.getItem('isAdminLoggedIn') === 'true') { 
-        switchView('admin-add'); 
+        switchView('admin-dashboard'); 
     } else { 
         switchView('home'); 
     }
@@ -57,11 +61,144 @@ function updateNavVisibility() {
     document.getElementById('admin-auth-btns').classList.toggle('flex', isLoggedIn);
 }
 
+function updateDashboardKPIs() {
+    let totalScans = 0;
+    let registeredMeds = Object.keys(medicineDatabase).length;
+    let activeBatches = 0;
+    let expiredBatches = 0;
+    let suspiciousScans = reportsDatabase.length;
+    let scansToday = 0;
+
+    const todayString = new Date().toDateString();
+
+    for (const key in medicineDatabase) {
+        const med = medicineDatabase[key];
+        if (med.status === 'authentic') activeBatches++;
+        if (med.status === 'expired') expiredBatches++;
+        
+        if (med.scans) {
+            totalScans += med.scans.length;
+            med.scans.forEach(scan => {
+                if (new Date(scan.timestamp).toDateString() === todayString) {
+                    scansToday++;
+                }
+            });
+        }
+    }
+
+    const elTotalScans = document.getElementById('kpi-total-scans');
+    const elRegMeds = document.getElementById('kpi-registered-meds');
+    const elActBatches = document.getElementById('kpi-active-batches');
+    const elExpBatches = document.getElementById('kpi-expired-batches');
+    const elSuspScans = document.getElementById('kpi-suspicious');
+    const elScansToday = document.getElementById('kpi-scans-today');
+
+    if(elTotalScans) elTotalScans.innerText = totalScans;
+    if(elRegMeds) elRegMeds.innerText = registeredMeds;
+    if(elActBatches) elActBatches.innerText = activeBatches;
+    if(elExpBatches) elExpBatches.innerText = expiredBatches;
+    if(elSuspScans) elSuspScans.innerText = suspiciousScans;
+    if(elScansToday) elScansToday.innerText = scansToday;
+}
+
+let trendChartInstance = null;
+
+function renderDashboardChart() {
+    const ctx = document.getElementById('trendChart');
+    if (!ctx) return;
+
+    if (trendChartInstance) {
+        trendChartInstance.destroy();
+    }
+
+    const labels = [];
+    for (let i = 6; i >= 0; i--) {
+        const d = new Date();
+        d.setDate(d.getDate() - i);
+        labels.push(d.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' }));
+    }
+
+    const verificationData = [120, 150, 180, 130, 210, 250, 310]; 
+    const suspiciousData = [5, 2, 8, 3, 12, 4, 2]; 
+
+    const isDark = document.documentElement.classList.contains('dark');
+    const textColor = isDark ? '#9ca3af' : '#6b7280';
+    const gridColor = isDark ? '#374151' : '#f3f4f6';
+
+    trendChartInstance = new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: labels,
+            datasets: [
+                {
+                    label: 'Total Verifications',
+                    data: verificationData,
+                    borderColor: '#018790', 
+                    backgroundColor: 'rgba(1, 135, 144, 0.1)', 
+                    borderWidth: 3,
+                    tension: 0.4, 
+                    fill: true,
+                    pointBackgroundColor: '#018790',
+                    pointBorderColor: '#ffffff',
+                    pointRadius: 4,
+                    pointHoverRadius: 6
+                },
+                {
+                    label: 'Suspicious Reports',
+                    data: suspiciousData,
+                    borderColor: '#ef4444', 
+                    backgroundColor: 'rgba(239, 68, 68, 0.05)',
+                    borderWidth: 2,
+                    borderDash: [5, 5], 
+                    tension: 0.4,
+                    fill: true,
+                    pointBackgroundColor: '#ef4444',
+                    pointRadius: 3
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: 'top',
+                    labels: { color: textColor, font: { family: 'Inter', weight: 'bold' }, usePointStyle: true }
+                },
+                tooltip: {
+                    backgroundColor: isDark ? '#1f2937' : '#ffffff',
+                    titleColor: isDark ? '#ffffff' : '#111827',
+                    bodyColor: isDark ? '#d1d5db' : '#4b5563',
+                    borderColor: isDark ? '#374151' : '#e5e7eb',
+                    borderWidth: 1,
+                    padding: 10,
+                    boxPadding: 4,
+                    usePointStyle: true
+                }
+            },
+            scales: {
+                y: { 
+                    beginAtZero: true,
+                    grid: { color: gridColor, drawBorder: false },
+                    ticks: { color: textColor, font: { family: 'Inter' } }
+                },
+                x: {
+                    grid: { display: false, drawBorder: false },
+                    ticks: { color: textColor, font: { family: 'Inter' } }
+                }
+            },
+            interaction: {
+                mode: 'index',
+                intersect: false,
+            },
+        }
+    });
+}
+
 function switchView(viewName) {
     document.querySelectorAll('.view-section').forEach(el => el.classList.add('hidden'));
     document.getElementById('view-' + viewName).classList.remove('hidden');
     
-    // Proper handling to fix the mobile nav bug
     const desktopLinks = document.getElementById('nav-landing-links-desktop');
     const mobileLinks = document.getElementById('nav-landing-links-mobile');
     
@@ -73,6 +210,10 @@ function switchView(viewName) {
         if(mobileLinks) mobileLinks.style.display = 'none';
     }
 
+    if (viewName === 'admin-dashboard') {
+        updateDashboardKPIs();
+        renderDashboardChart();
+    }
     if (viewName === 'admin-list') renderMedicineList();
     if (viewName !== 'home' && scannerActive) stopScanner();
     window.scrollTo(0,0);
@@ -112,12 +253,12 @@ function toggleAuthMode(mode) {
 
     if(mode === 'login') {
         document.getElementById('form-login').classList.remove('hidden');
-        tabLogin.className = "w-1/2 py-4 sm:py-5 text-center font-bold bg-white dark:bg-gray-800 text-[#6b21a8] dark:text-[#a855f7] border-b-2 border-[#6b21a8] dark:border-[#a855f7] transition outline-none text-sm sm:text-base";
+        tabLogin.className = "w-1/2 py-4 sm:py-5 text-center font-bold bg-white dark:bg-gray-800 text-[#018790] dark:text-[#00b4c2] border-b-2 border-[#018790] dark:border-[#00b4c2] transition outline-none text-sm sm:text-base";
         document.getElementById('login-error').classList.add('hidden');
         document.getElementById('form-login').reset();
     } else {
         document.getElementById('form-register').classList.remove('hidden');
-        tabRegister.className = "w-1/2 py-4 sm:py-5 text-center font-bold bg-white dark:bg-gray-800 text-[#6b21a8] dark:text-[#a855f7] border-b-2 border-[#6b21a8] dark:border-[#a855f7] transition outline-none text-sm sm:text-base";
+        tabRegister.className = "w-1/2 py-4 sm:py-5 text-center font-bold bg-white dark:bg-gray-800 text-[#018790] dark:text-[#00b4c2] border-b-2 border-[#018790] dark:border-[#00b4c2] transition outline-none text-sm sm:text-base";
         document.getElementById('form-register').reset();
         document.getElementById('form-register-otp').reset();
         pendingRegistration = null;
@@ -136,7 +277,7 @@ function handleLogin(event) {
         errorMsg.classList.add('hidden');
         document.getElementById('form-login').reset();
         updateNavVisibility();
-        switchView('admin-add');
+        switchView('admin-dashboard');
     } else {
         errorMsg.classList.remove('hidden');
     }
@@ -202,6 +343,7 @@ function addMedicine(event) {
     localStorage.setItem('medicineDB', JSON.stringify(medicineDatabase));
     alert(`Success! Added securely to the database.`);
     document.getElementById('add-medicine-form').reset();
+    switchView('admin-list');
 }
 
 function renderMedicineList() {
@@ -228,7 +370,7 @@ function renderMedicineList() {
                 </button>
             </td>
             <td class="px-4 sm:px-5 py-3 sm:py-4 whitespace-nowrap text-right text-xs sm:text-sm font-medium">
-                <button onclick="editMedicine('${barcode}')" class="text-[#6b21a8] hover:text-[#581c87] bg-purple-50 hover:bg-purple-100 dark:bg-purple-900/30 dark:text-[#a855f7] dark:hover:bg-purple-900/50 px-3 sm:px-4 py-1 sm:py-1.5 rounded-lg transition font-bold text-[10px] sm:text-xs shadow-sm">
+                <button onclick="editMedicine('${barcode}')" class="text-[#018790] hover:text-[#006b72] bg-teal-50 hover:bg-teal-100 dark:bg-teal-900/30 dark:text-[#00b4c2] dark:hover:bg-teal-900/50 px-3 sm:px-4 py-1 sm:py-1.5 rounded-lg transition font-bold text-[10px] sm:text-xs shadow-sm">
                     Edit
                 </button>
             </td>`;
@@ -337,7 +479,7 @@ function sendChatMessage() {
 function addMessageToChat(sender, text) {
     const chatWindow = document.getElementById('chat-window'); const messageDiv = document.createElement('div');
     messageDiv.className = sender === 'user' ? 'flex items-end justify-end' : 'flex items-start';
-    messageDiv.innerHTML = `<div class="${sender === 'user' ? 'bg-[#6b21a8] text-white rounded-tr-none' : 'bg-[#f3e8ff] dark:bg-purple-900/40 text-[#6b21a8] dark:text-purple-100 rounded-tl-none border border-purple-100 dark:border-purple-800'} rounded-2xl p-3 sm:p-4 max-w-[90%] sm:max-w-[85%] shadow-sm font-medium text-sm sm:text-base">${text}</div>`;
+    messageDiv.innerHTML = `<div class="${sender === 'user' ? 'bg-[#018790] text-white rounded-tr-none' : 'bg-teal-50 dark:bg-teal-900/40 text-[#018790] dark:text-teal-100 rounded-tl-none border border-teal-100 dark:border-teal-800'} rounded-2xl p-3 sm:p-4 max-w-[90%] sm:max-w-[85%] shadow-sm font-medium text-sm sm:text-base">${text}</div>`;
     chatWindow.appendChild(messageDiv); chatWindow.scrollTop = chatWindow.scrollHeight;
 }
 
@@ -383,13 +525,14 @@ function verifyBarcode(barcode) {
     const resultCard = document.getElementById('result-card');
     resultCard.classList.add('show');
     
-    resultCard.innerHTML = `<div class="text-center py-10 sm:py-16"><div class="animate-spin rounded-full h-10 w-10 sm:h-12 sm:w-12 border-b-4 border-[#6b21a8] mx-auto mb-4"></div><p class="text-sm sm:text-base text-gray-600 dark:text-gray-300 font-bold">Querying Authentic Databases...</p></div>`;
+    resultCard.innerHTML = `<div class="text-center py-10 sm:py-16"><div class="animate-spin rounded-full h-10 w-10 sm:h-12 sm:w-12 border-b-4 border-[#018790] mx-auto mb-4"></div><p class="text-sm sm:text-base text-gray-600 dark:text-gray-300 font-bold">Querying Authentic Databases...</p></div>`;
     
     setTimeout(() => {
         const result = medicineDatabase[barcode];
         if (result && result.status !== 'unknown') {
             if (!result.scans) result.scans = [];
             result.scans.push({ location: userLocation, timestamp: new Date() });
+            localStorage.setItem('medicineDB', JSON.stringify(medicineDatabase));
             displayResults(result, barcode);
         } else {
             displayUnknownResult(barcode);
@@ -462,9 +605,9 @@ function displayResults(result, barcode) {
             </div>
             
             <div class="space-y-3 sm:space-y-4">
-                <div class="bg-blue-50 dark:bg-blue-900/20 p-3 sm:p-4 rounded-xl"><p class="font-bold text-blue-900 dark:text-blue-300 mb-0.5 sm:mb-1 text-xs sm:text-base">Purpose:</p><p class="text-blue-800 dark:text-blue-400 text-xs sm:text-sm font-medium">${result.purpose}</p></div>
+                <div class="bg-teal-50 dark:bg-teal-900/20 p-3 sm:p-4 rounded-xl"><p class="font-bold text-[#018790] dark:text-[#00b4c2] mb-0.5 sm:mb-1 text-xs sm:text-base">Purpose:</p><p class="text-[#006b72] dark:text-teal-400 text-xs sm:text-sm font-medium">${result.purpose}</p></div>
                 <div class="bg-green-50 dark:bg-green-900/20 p-3 sm:p-4 rounded-xl"><p class="font-bold text-green-900 dark:text-green-300 mb-0.5 sm:mb-1 text-xs sm:text-base">Dosage:</p><p class="text-green-800 dark:text-green-400 text-xs sm:text-sm font-medium">${result.dosage}</p></div>
-                <div class="bg-purple-50 dark:bg-purple-900/20 p-3 sm:p-4 rounded-xl"><p class="font-bold text-purple-900 dark:text-purple-300 mb-0.5 sm:mb-1 text-xs sm:text-base">Who Can Use:</p><p class="text-purple-800 dark:text-purple-400 text-xs sm:text-sm font-medium">${result.whoCanUse}</p></div>
+                <div class="bg-cyan-50 dark:bg-cyan-900/20 p-3 sm:p-4 rounded-xl"><p class="font-bold text-cyan-900 dark:text-cyan-300 mb-0.5 sm:mb-1 text-xs sm:text-base">Who Can Use:</p><p class="text-cyan-800 dark:text-cyan-400 text-xs sm:text-sm font-medium">${result.whoCanUse}</p></div>
                 <div class="bg-yellow-50 dark:bg-yellow-900/20 p-3 sm:p-4 rounded-xl"><p class="font-bold text-yellow-900 dark:text-yellow-300 mb-0.5 sm:mb-1 text-xs sm:text-base">Precaution:</p><p class="text-yellow-800 dark:text-yellow-400 text-xs sm:text-sm font-medium">${result.precaution}</p></div>
                 <div class="bg-orange-50 dark:bg-orange-900/20 p-3 sm:p-4 rounded-xl"><p class="font-bold text-orange-900 dark:text-orange-300 mb-0.5 sm:mb-1 text-xs sm:text-base">Side Effects:</p><p class="text-orange-800 dark:text-orange-400 text-xs sm:text-sm font-medium">${result.sideEffects}</p></div>
             </div>

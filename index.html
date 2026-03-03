@@ -4,35 +4,16 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>MediVerify - Medicine Authenticity Checker</title>
+    
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = { darkMode: 'class', }
     </script>
+    
     <script src="https://cdnjs.cloudflare.com/ajax/libs/quagga/0.12.1/quagga.min.js"></script>
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,800&display=swap');
-        
-        body { font-family: 'Inter', sans-serif; min-height: 100vh; scroll-behavior: smooth; overflow-x: hidden; }
-        
-        /* Hide scrollbar for mobile navigation */
-        .no-scrollbar::-webkit-scrollbar { display: none; }
-        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
-        
-        /* Scanner Styles */
-        .scanner-overlay { position: relative; border: 2px solid #6b21a8; border-radius: 12px; overflow: hidden; }
-        .scanning-line { position: absolute; height: 4px; background: linear-gradient(90deg, transparent, #a855f7, transparent); width: 100%; animation: scan 2s linear infinite; box-shadow: 0 0 10px #a855f7; }
-        @keyframes scan { 0% { top: 0; } 100% { top: 100%; } }
-        
-        /* Smooth Reveal */
-        .result-card { transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1); transform: translateY(20px) scale(0.98); opacity: 0; display: none; }
-        .result-card.show { transform: translateY(0) scale(1); opacity: 1; display: block; }
-        
-        input[list]::-webkit-calendar-picker-indicator { display: none !important; }
-
-        /* Custom Decorative Shapes */
-        .shape-bg-purple { background-color: #6b21a8; }
-        .shape-bg-pink { background-color: #ffb6c1; }
-    </style>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <link rel="stylesheet" href="styles.css">
 </head>
 <body class="bg-[#faf9f8] text-gray-900 dark:bg-gray-900 dark:text-gray-100 transition-colors duration-300">
     
@@ -41,17 +22,17 @@
             <div class="flex items-center justify-between h-16 sm:h-20">
                 
                 <div class="flex items-center cursor-pointer transform hover:scale-105 transition" onclick="switchView('home')">
-                    <h1 class="text-2xl sm:text-3xl font-black italic text-[#6b21a8] dark:text-[#a855f7] tracking-tighter">MediVerify</h1>
+                    <h1 class="text-2xl sm:text-3xl font-black italic text-[#018790] dark:text-[#00b4c2] tracking-tighter">MediVerify</h1>
                 </div>
 
                 <nav id="nav-landing-links-desktop" class="hidden md:flex items-center bg-gray-100/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-full p-1 border border-gray-200 dark:border-gray-700 shadow-sm">
-                    <button onclick="goToSection('verify-section')" class="px-5 py-2 rounded-full text-sm font-bold text-gray-600 hover:text-[#6b21a8] hover:bg-white dark:text-gray-300 dark:hover:bg-gray-700 dark:hover:text-[#a855f7] hover:shadow-sm transition-all duration-300">Verify</button>
-                    <button onclick="goToSection('how-it-works')" class="px-5 py-2 rounded-full text-sm font-bold text-gray-600 hover:text-[#6b21a8] hover:bg-white dark:text-gray-300 dark:hover:bg-gray-700 dark:hover:text-[#a855f7] hover:shadow-sm transition-all duration-300">How it Works</button>
-                    <button onclick="goToSection('bot-section')" class="px-5 py-2 rounded-full flex items-center gap-1.5 text-sm font-bold text-gray-600 hover:text-[#6b21a8] hover:bg-white dark:text-gray-300 dark:hover:bg-gray-700 dark:hover:text-[#a855f7] hover:shadow-sm transition-all duration-300">
-                        <svg class="w-4 h-4 text-[#a855f7]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+                    <button onclick="goToSection('verify-section')" class="px-5 py-2 rounded-full text-sm font-bold text-gray-600 hover:text-[#018790] hover:bg-white dark:text-gray-300 dark:hover:bg-gray-700 dark:hover:text-[#00b4c2] hover:shadow-sm transition-all duration-300">Verify</button>
+                    <button onclick="goToSection('how-it-works')" class="px-5 py-2 rounded-full text-sm font-bold text-gray-600 hover:text-[#018790] hover:bg-white dark:text-gray-300 dark:hover:bg-gray-700 dark:hover:text-[#00b4c2] hover:shadow-sm transition-all duration-300">How it Works</button>
+                    <button onclick="goToSection('bot-section')" class="px-5 py-2 rounded-full flex items-center gap-1.5 text-sm font-bold text-gray-600 hover:text-[#018790] hover:bg-white dark:text-gray-300 dark:hover:bg-gray-700 dark:hover:text-[#00b4c2] hover:shadow-sm transition-all duration-300">
+                        <svg class="w-4 h-4 text-[#00b4c2]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
                         AI Bot
                     </button>
-                    <button onclick="goToSection('report-section')" class="px-5 py-2 rounded-full text-sm font-bold text-gray-600 hover:text-[#6b21a8] hover:bg-white dark:text-gray-300 dark:hover:bg-gray-700 dark:hover:text-[#a855f7] hover:shadow-sm transition-all duration-300">Report</button>
+                    <button onclick="goToSection('report-section')" class="px-5 py-2 rounded-full text-sm font-bold text-gray-600 hover:text-[#018790] hover:bg-white dark:text-gray-300 dark:hover:bg-gray-700 dark:hover:text-[#00b4c2] hover:shadow-sm transition-all duration-300">Report</button>
                 </nav>
 
                 <div class="flex items-center gap-2 sm:gap-4">
@@ -60,14 +41,32 @@
                     </button>
                     
                     <div id="public-auth-btns" class="flex items-center gap-2 sm:gap-4">
-                        <button onclick="requireAdminLogin('login')" class="text-xs sm:text-sm font-bold text-gray-700 hover:text-[#6b21a8] dark:text-gray-300 transition">Login</button>
-                        <button onclick="requireAdminLogin('register')" class="px-4 py-2 sm:px-5 sm:py-2.5 bg-[#6b21a8] text-white text-xs sm:text-sm font-bold rounded-full hover:bg-[#581c87] transition shadow-md hover:shadow-lg transform hover:-translate-y-0.5 whitespace-nowrap">Sign Up</button>
+                        <button onclick="requireAdminLogin('login')" class="text-xs sm:text-sm font-bold text-gray-700 hover:text-[#018790] dark:text-gray-300 transition">Login</button>
+                        <button onclick="requireAdminLogin('register')" class="px-4 py-2 sm:px-5 sm:py-2.5 bg-[#018790] text-white text-xs sm:text-sm font-bold rounded-full hover:bg-[#006b72] transition shadow-md hover:shadow-lg transform hover:-translate-y-0.5 whitespace-nowrap">
+                            <span class="sm:hidden">Sign Up</span>
+                            <span class="hidden sm:inline">Sign up for free</span>
+                        </button>
                     </div>
 
-                    <div id="admin-auth-btns" class="hidden items-center gap-2 sm:gap-4">
-                        <button onclick="switchView('admin-add')" class="text-xs sm:text-sm font-bold text-[#6b21a8] dark:text-[#a855f7] hover:underline">Dash</button>
-                        <button onclick="switchView('admin-list')" class="text-xs sm:text-sm font-bold text-gray-700 dark:text-gray-300 hover:text-[#6b21a8] dark:hover:text-[#a855f7]">DB</button>
-                        <button onclick="logoutAdmin()" class="px-3 py-1.5 sm:px-5 sm:py-2 border-2 border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 text-xs sm:text-sm font-bold rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 transition">Logout</button>
+                    <div id="admin-auth-btns" class="hidden items-center bg-gray-100/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-full p-1 border border-gray-200 dark:border-gray-700 shadow-sm ml-1 sm:ml-2">
+                        
+                        <button onclick="switchView('admin-dashboard')" class="px-3 py-1.5 sm:px-4 sm:py-2 rounded-full text-xs sm:text-sm font-bold text-gray-600 hover:text-[#018790] hover:bg-white dark:text-gray-300 dark:hover:bg-gray-700 dark:hover:text-[#00b4c2] hover:shadow-sm transition-all duration-300 flex items-center gap-1.5">
+                            <svg class="w-3.5 h-3.5 sm:w-4 sm:h-4 text-[#018790] dark:text-[#00b4c2]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"></path></svg>
+                            <span class="hidden sm:inline">Dashboard</span><span class="sm:hidden">Dash</span>
+                        </button>
+
+                        <button onclick="switchView('admin-list')" class="px-3 py-1.5 sm:px-4 sm:py-2 rounded-full text-xs sm:text-sm font-bold text-gray-600 hover:text-[#018790] hover:bg-white dark:text-gray-300 dark:hover:bg-gray-700 dark:hover:text-[#00b4c2] hover:shadow-sm transition-all duration-300 flex items-center gap-1.5">
+                            <svg class="w-3.5 h-3.5 sm:w-4 sm:h-4 text-[#018790] dark:text-[#00b4c2]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4"></path></svg>
+                            <span class="hidden sm:inline">Database</span><span class="sm:hidden">DB</span>
+                        </button>
+                        
+                        <div class="w-px h-4 bg-gray-300 dark:bg-gray-600 mx-0.5 sm:mx-1"></div>
+                        
+                        <button onclick="logoutAdmin()" class="px-3 py-1.5 sm:px-4 sm:py-2 rounded-full text-xs sm:text-sm font-bold text-red-500 hover:text-red-600 hover:bg-red-50 dark:text-red-400 dark:hover:bg-red-900/30 dark:hover:text-red-300 transition-all duration-300 flex items-center gap-1.5">
+                            <svg class="w-3.5 h-3.5 sm:w-4 sm:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path></svg>
+                            <span class="hidden sm:inline">Logout</span><span class="sm:hidden">Exit</span>
+                        </button>
+
                     </div>
                 </div>
             </div>
@@ -76,7 +75,7 @@
                 <button onclick="goToSection('verify-section')" class="whitespace-nowrap px-4 py-1.5 bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 rounded-full text-xs font-bold shadow-sm border border-gray-200 dark:border-gray-700 transition active:bg-gray-200">Verify</button>
                 <button onclick="goToSection('how-it-works')" class="whitespace-nowrap px-4 py-1.5 bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 rounded-full text-xs font-bold shadow-sm border border-gray-200 dark:border-gray-700 transition active:bg-gray-200">How it Works</button>
                 <button onclick="goToSection('bot-section')" class="whitespace-nowrap flex items-center gap-1 px-4 py-1.5 bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 rounded-full text-xs font-bold shadow-sm border border-gray-200 dark:border-gray-700 transition active:bg-gray-200">
-                    <svg class="w-3 h-3 text-[#a855f7]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg> AI Bot
+                    <svg class="w-3 h-3 text-[#00b4c2]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg> AI Bot
                 </button>
                 <button onclick="goToSection('report-section')" class="whitespace-nowrap px-4 py-1.5 bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 rounded-full text-xs font-bold shadow-sm border border-gray-200 dark:border-gray-700 transition active:bg-gray-200">Report</button>
             </nav>
@@ -87,13 +86,13 @@
         <option value="Paracetamol 500mg"></option><option value="Ibuprofen 200mg"></option><option value="Amoxicillin 500mg"></option><option value="Cetirizine 10mg"></option><option value="Azithromycin 500mg"></option>
     </datalist>
 
-    <main class="w-full">
+    <main class="w-full overflow-hidden">
         
         <div id="view-home" class="view-section block">
             
             <section id="verify-section" class="relative pt-12 sm:pt-20 pb-20 sm:pb-32 px-4 sm:px-6 overflow-hidden">
                 <div class="max-w-4xl mx-auto text-center relative z-20">
-                    <h1 class="text-4xl sm:text-5xl md:text-7xl font-extrabold text-[#2e1065] dark:text-white tracking-tight mb-4 sm:mb-6 leading-tight">
+                    <h1 class="text-4xl sm:text-5xl md:text-7xl font-extrabold text-[#003d42] dark:text-white tracking-tight mb-4 sm:mb-6 leading-tight">
                         Verify your<br>medicine authenticity.
                     </h1>
                     <p class="text-base sm:text-lg md:text-xl text-gray-600 dark:text-gray-300 mb-8 sm:mb-10 max-w-3xl mx-auto leading-relaxed">
@@ -103,22 +102,22 @@
 
                     <div class="relative max-w-xl mx-auto bg-white dark:bg-gray-800 rounded-full shadow-xl border border-gray-200 dark:border-gray-700 p-1.5 sm:p-2 flex items-center">
                         <input type="text" id="barcode-input" placeholder="Enter barcode number..." onkeypress="if(event.key === 'Enter') verifyManualInput()" class="flex-1 bg-transparent px-4 sm:px-6 py-2.5 sm:py-3 text-sm sm:text-lg outline-none dark:text-white placeholder-gray-400 w-full min-w-0">
-                        <button onclick="verifyManualInput()" class="bg-[#a855f7] hover:bg-[#9333ea] text-white font-bold py-2.5 sm:py-3 px-5 sm:px-8 rounded-full transition shadow-md text-sm sm:text-base whitespace-nowrap">
+                        <button onclick="verifyManualInput()" class="bg-[#00b4c2] hover:bg-[#018790] text-white font-bold py-2.5 sm:py-3 px-5 sm:px-8 rounded-full transition shadow-md text-sm sm:text-base whitespace-nowrap">
                             Verify
                         </button>
                     </div>
                     
                     <div class="mt-6 sm:mt-8 flex justify-center">
-                        <button onclick="initScanner()" class="group relative flex items-center gap-2 sm:gap-3 px-6 py-3 sm:px-8 sm:py-4 bg-white dark:bg-gray-800 text-[#6b21a8] dark:text-[#a855f7] font-extrabold rounded-full shadow-xl border-2 border-purple-100 dark:border-purple-900 hover:shadow-2xl transition-all overflow-hidden transform hover:-translate-y-1 w-full sm:w-auto justify-center">
-                            <span class="absolute inset-0 w-full h-full bg-purple-50 dark:bg-purple-900/20 transform scale-x-0 group-hover:scale-x-100 transition-transform origin-left"></span>
-                            <svg class="w-5 h-5 sm:w-6 sm:h-6 z-10 animate-pulse text-[#a855f7]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h4a1 1 0 010 2H5v3a1 1 0 01-2 0V4zm14-1a1 1 0 011 1v3a1 1 0 01-2 0V5h-3a1 1 0 010-2h4zM4 17a1 1 0 012 0v3h3a1 1 0 010 2H5a1 1 0 01-1-1v-4zm15 1a1 1 0 01-1 1h-3a1 1 0 010 2h4a1 1 0 011-1v-4a1 1 0 01-2 0v3z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h8"></path></svg>
+                        <button onclick="initScanner()" class="group relative flex items-center gap-2 sm:gap-3 px-6 py-3 sm:px-8 sm:py-4 bg-white dark:bg-gray-800 text-[#018790] dark:text-[#00b4c2] font-extrabold rounded-full shadow-xl border-2 border-teal-100 dark:border-teal-900 hover:shadow-2xl transition-all overflow-hidden transform hover:-translate-y-1 w-full sm:w-auto justify-center">
+                            <span class="absolute inset-0 w-full h-full bg-teal-50 dark:bg-teal-900/20 transform scale-x-0 group-hover:scale-x-100 transition-transform origin-left"></span>
+                            <svg class="w-5 h-5 sm:w-6 sm:h-6 z-10 animate-pulse text-[#00b4c2]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h4a1 1 0 010 2H5v3a1 1 0 01-2 0V4zm14-1a1 1 0 011 1v3a1 1 0 01-2 0V5h-3a1 1 0 010-2h4zM4 17a1 1 0 012 0v3h3a1 1 0 010 2H5a1 1 0 01-1-1v-4zm15 1a1 1 0 01-1 1h-3a1 1 0 010 2h4a1 1 0 011-1v-4a1 1 0 01-2 0v3z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h8"></path></svg>
                             <span class="z-10 uppercase tracking-wide text-xs sm:text-sm">Scan With Camera</span>
                         </button>
                     </div>
                 </div>
 
                 <div class="relative mt-12 sm:mt-16 max-w-6xl mx-auto z-10">
-                    <div class="absolute bottom-0 left-0 right-0 h-[60%] shape-bg-purple -z-10 rounded-t-[30px] sm:rounded-t-[40px]"></div>
+                    <div class="absolute bottom-0 left-0 right-0 h-[60%] shape-bg-teal -z-10 rounded-t-[30px] sm:rounded-t-[40px]"></div>
                     <div class="absolute bottom-10 left-10 w-48 h-48 sm:w-64 sm:h-64 shape-bg-pink rounded-tr-[60px] rounded-bl-[60px] sm:rounded-tr-[80px] sm:rounded-bl-[80px] -z-10 hidden md:block"></div>
                     
                     <div class="bg-[#111827] rounded-xl sm:rounded-2xl shadow-2xl overflow-hidden border border-gray-700 max-w-4xl mx-auto transform hover:-translate-y-1 sm:hover:-translate-y-2 transition duration-500">
@@ -140,8 +139,8 @@
                             </div>
 
                             <div id="instructions-section" class="text-center py-10 sm:py-16">
-                                <div class="w-16 h-16 sm:w-20 sm:h-20 bg-purple-100 dark:bg-purple-900/30 rounded-full flex items-center justify-center mx-auto mb-4 sm:mb-6">
-                                    <svg class="w-8 h-8 sm:w-10 sm:h-10 text-[#6b21a8] dark:text-[#a855f7]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path></svg>
+                                <div class="w-16 h-16 sm:w-20 sm:h-20 bg-teal-100 dark:bg-teal-900/30 rounded-full flex items-center justify-center mx-auto mb-4 sm:mb-6">
+                                    <svg class="w-8 h-8 sm:w-10 sm:h-10 text-[#018790] dark:text-[#00b4c2]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path></svg>
                                 </div>
                                 <h3 class="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white mb-2">System Ready</h3>
                                 <p class="text-sm sm:text-base text-gray-500 dark:text-gray-400">Enter a barcode above or start the camera to verify.</p>
@@ -154,33 +153,33 @@
             <section id="how-it-works" class="py-16 sm:py-24 bg-white dark:bg-gray-800 border-t border-gray-100 dark:border-gray-700 px-4 sm:px-6">
                 <div class="max-w-6xl mx-auto">
                     <div class="text-center mb-12 sm:mb-16">
-                        <h2 class="text-3xl sm:text-4xl font-extrabold text-[#2e1065] dark:text-white mb-3 sm:mb-4">How MediVerify Works</h2>
+                        <h2 class="text-3xl sm:text-4xl font-extrabold text-[#003d42] dark:text-white mb-3 sm:mb-4">How MediVerify Works</h2>
                         <p class="text-base sm:text-lg text-gray-600 dark:text-gray-400 max-w-2xl mx-auto">Three simple steps to ensure your medication is authentic, safe, and right for you.</p>
                     </div>
                     
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-6 sm:gap-8">
                         <div class="bg-gray-50 dark:bg-gray-900 p-6 sm:p-8 rounded-2xl sm:rounded-3xl border border-gray-200 dark:border-gray-700 relative overflow-hidden shadow-sm">
-                            <div class="text-7xl sm:text-8xl font-black text-purple-100 dark:text-gray-800 absolute -top-4 -right-2 z-0 opacity-60">1</div>
+                            <div class="text-7xl sm:text-8xl font-black text-teal-100 dark:text-gray-800 absolute -top-4 -right-2 z-0 opacity-60">1</div>
                             <div class="relative z-10">
-                                <div class="w-12 h-12 sm:w-14 sm:h-14 bg-purple-100 dark:bg-purple-900/40 rounded-xl sm:rounded-2xl flex items-center justify-center text-xl sm:text-2xl mb-4 sm:mb-6 shadow-inner">📷</div>
+                                <div class="w-12 h-12 sm:w-14 sm:h-14 bg-teal-100 dark:bg-teal-900/40 rounded-xl sm:rounded-2xl flex items-center justify-center text-xl sm:text-2xl mb-4 sm:mb-6 shadow-inner">📷</div>
                                 <h3 class="text-lg sm:text-xl font-bold text-gray-900 dark:text-white mb-2 sm:mb-3">Scan or Search</h3>
-                                <p class="text-sm sm:text-base text-gray-600 dark:text-gray-400 leading-relaxed font-medium">Use your phone's camera to scan the barcode on the medicine packaging, or simply type the number manually.</p>
+                                <p class="text-sm sm:text-base text-gray-600 dark:text-gray-400 leading-relaxed font-medium">Use your phone's camera to scan the barcode, or manually type the number.</p>
                             </div>
                         </div>
                         <div class="bg-gray-50 dark:bg-gray-900 p-6 sm:p-8 rounded-2xl sm:rounded-3xl border border-gray-200 dark:border-gray-700 relative overflow-hidden shadow-sm">
-                            <div class="text-7xl sm:text-8xl font-black text-purple-100 dark:text-gray-800 absolute -top-4 -right-2 z-0 opacity-60">2</div>
+                            <div class="text-7xl sm:text-8xl font-black text-teal-100 dark:text-gray-800 absolute -top-4 -right-2 z-0 opacity-60">2</div>
                             <div class="relative z-10">
-                                <div class="w-12 h-12 sm:w-14 sm:h-14 bg-purple-100 dark:bg-purple-900/40 rounded-xl sm:rounded-2xl flex items-center justify-center text-xl sm:text-2xl mb-4 sm:mb-6 shadow-inner">🔍</div>
+                                <div class="w-12 h-12 sm:w-14 sm:h-14 bg-teal-100 dark:bg-teal-900/40 rounded-xl sm:rounded-2xl flex items-center justify-center text-xl sm:text-2xl mb-4 sm:mb-6 shadow-inner">🔍</div>
                                 <h3 class="text-lg sm:text-xl font-bold text-gray-900 dark:text-white mb-2 sm:mb-3">Instant Verification</h3>
-                                <p class="text-sm sm:text-base text-gray-600 dark:text-gray-400 leading-relaxed font-medium">Our system checks global pharmaceutical databases in real-time to verify authenticity, batch details, and expiry dates.</p>
+                                <p class="text-sm sm:text-base text-gray-600 dark:text-gray-400 leading-relaxed font-medium">Our system checks global databases in real-time for authenticity and expiry.</p>
                             </div>
                         </div>
                         <div class="bg-gray-50 dark:bg-gray-900 p-6 sm:p-8 rounded-2xl sm:rounded-3xl border border-gray-200 dark:border-gray-700 relative overflow-hidden shadow-sm">
-                            <div class="text-7xl sm:text-8xl font-black text-purple-100 dark:text-gray-800 absolute -top-4 -right-2 z-0 opacity-60">3</div>
+                            <div class="text-7xl sm:text-8xl font-black text-teal-100 dark:text-gray-800 absolute -top-4 -right-2 z-0 opacity-60">3</div>
                             <div class="relative z-10">
-                                <div class="w-12 h-12 sm:w-14 sm:h-14 bg-purple-100 dark:bg-purple-900/40 rounded-xl sm:rounded-2xl flex items-center justify-center text-xl sm:text-2xl mb-4 sm:mb-6 shadow-inner">🛡️</div>
+                                <div class="w-12 h-12 sm:w-14 sm:h-14 bg-teal-100 dark:bg-teal-900/40 rounded-xl sm:rounded-2xl flex items-center justify-center text-xl sm:text-2xl mb-4 sm:mb-6 shadow-inner">🛡️</div>
                                 <h3 class="text-lg sm:text-xl font-bold text-gray-900 dark:text-white mb-2 sm:mb-3">Stay Protected</h3>
-                                <p class="text-sm sm:text-base text-gray-600 dark:text-gray-400 leading-relaxed font-medium">Get complete usage info. If a medicine is fake or recalled, you'll be warned immediately so you can report it safely.</p>
+                                <p class="text-sm sm:text-base text-gray-600 dark:text-gray-400 leading-relaxed font-medium">Get usage info. If a medicine is fake or recalled, you'll be warned immediately.</p>
                             </div>
                         </div>
                     </div>
@@ -190,7 +189,7 @@
             <section id="bot-section" class="py-16 sm:py-24 bg-white dark:bg-gray-800 border-t border-gray-100 dark:border-gray-700 px-4 sm:px-6">
                 <div class="max-w-5xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-10 sm:gap-12 items-center">
                     <div>
-                        <h2 class="text-3xl sm:text-4xl font-extrabold text-[#2e1065] dark:text-white mb-4 sm:mb-6">AI Symptom Assistant</h2>
+                        <h2 class="text-3xl sm:text-4xl font-extrabold text-[#003d42] dark:text-white mb-4 sm:mb-6">AI Symptom Assistant</h2>
                         <p class="text-base sm:text-lg text-gray-600 dark:text-gray-300 mb-6 sm:mb-8 leading-relaxed">Not sure what medicine to verify? Describe your symptoms, and our intelligent bot will cross-reference authentic databases to find potential matches safely.</p>
                         <ul class="space-y-3 sm:space-y-4 mb-8">
                             <li class="flex items-center gap-3 text-sm sm:text-base text-gray-700 dark:text-gray-300 font-medium"><div class="w-5 h-5 sm:w-6 sm:h-6 rounded-full bg-green-100 flex items-center justify-center text-green-600 text-xs sm:text-sm">✓</div> Fast Database Query</li>
@@ -201,14 +200,14 @@
                     <div class="bg-gray-50 dark:bg-gray-900 rounded-2xl shadow-xl flex flex-col h-[350px] sm:h-[450px] border border-gray-200 dark:border-gray-700 overflow-hidden">
                         <div id="chat-window" class="flex-1 p-4 sm:p-6 overflow-y-auto space-y-4 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] bg-opacity-10">
                             <div class="flex items-start">
-                                <div class="bg-[#f3e8ff] dark:bg-purple-900/40 text-[#6b21a8] dark:text-purple-100 rounded-2xl rounded-tl-none p-3 sm:p-4 max-w-[90%] sm:max-w-[85%] shadow-sm font-medium border border-purple-100 dark:border-purple-800 text-sm sm:text-base">
+                                <div class="bg-teal-50 dark:bg-teal-900/40 text-[#018790] dark:text-teal-100 rounded-2xl rounded-tl-none p-3 sm:p-4 max-w-[90%] sm:max-w-[85%] shadow-sm font-medium border border-teal-100 dark:border-teal-800 text-sm sm:text-base">
                                     👋 Hello! Tell me your symptoms, and I'll find authentic medicines that match.
                                 </div>
                             </div>
                         </div>
                         <div class="p-3 sm:p-4 bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 flex gap-2 sm:gap-3">
-                            <input type="text" id="chat-input" class="flex-1 bg-gray-100 dark:bg-gray-700 px-3 sm:px-4 py-2 sm:py-3 rounded-xl outline-none focus:ring-2 focus:ring-[#a855f7] dark:text-white text-sm sm:text-base" placeholder="Type symptoms..." onkeypress="handleChatKeyPress(event)">
-                            <button onclick="sendChatMessage()" class="bg-[#6b21a8] hover:bg-[#581c87] text-white font-bold py-2 sm:py-3 px-4 sm:px-6 rounded-xl transition shadow-md text-sm sm:text-base">Send</button>
+                            <input type="text" id="chat-input" class="flex-1 bg-gray-100 dark:bg-gray-700 px-3 sm:px-4 py-2 sm:py-3 rounded-xl outline-none focus:ring-2 focus:ring-[#00b4c2] dark:text-white text-sm sm:text-base" placeholder="Type symptoms..." onkeypress="handleChatKeyPress(event)">
+                            <button onclick="sendChatMessage()" class="bg-[#018790] hover:bg-[#006b72] text-white font-bold py-2 sm:py-3 px-4 sm:px-6 rounded-xl transition shadow-md text-sm sm:text-base">Send</button>
                         </div>
                     </div>
                 </div>
@@ -217,7 +216,7 @@
             <section id="report-section" class="py-16 sm:py-24 bg-[#faf9f8] dark:bg-gray-900 border-t border-gray-100 dark:border-gray-700 px-4 sm:px-6">
                 <div class="max-w-3xl mx-auto">
                     <div class="text-center mb-8 sm:mb-10">
-                        <h2 class="text-3xl sm:text-4xl font-extrabold text-[#2e1065] dark:text-white mb-3 sm:mb-4">Protect the Community</h2>
+                        <h2 class="text-3xl sm:text-4xl font-extrabold text-[#003d42] dark:text-white mb-3 sm:mb-4">Protect the Community</h2>
                         <p class="text-base sm:text-lg text-gray-600 dark:text-gray-400">If you suspect a medicine is fake, report it instantly. Multiple reports automatically warn other users.</p>
                     </div>
                     
@@ -255,56 +254,56 @@
         </div>
 
         <div id="view-admin-login" class="view-section hidden relative py-8 sm:py-16 px-4 sm:px-6">
-            <div class="absolute inset-0 bg-gradient-to-br from-purple-100 via-white to-pink-50 dark:from-gray-900 dark:via-gray-900 dark:to-purple-900/20 -z-10 rounded-2xl sm:rounded-3xl mx-2 sm:mx-4"></div>
+            <div class="absolute inset-0 bg-gradient-to-br from-teal-50 via-white to-teal-100 dark:from-gray-900 dark:via-gray-900 dark:to-teal-900/20 -z-10 rounded-2xl sm:rounded-3xl mx-2 sm:mx-4"></div>
             
             <div class="max-w-2xl mx-auto relative z-10">
                 
-                <button onclick="switchView('home')" class="mb-4 sm:mb-6 flex items-center gap-2 text-xs sm:text-sm font-bold text-gray-600 dark:text-gray-400 hover:text-[#6b21a8] dark:hover:text-[#a855f7] transition group w-fit">
+                <button onclick="switchView('home')" class="mb-4 sm:mb-6 flex items-center gap-2 text-xs sm:text-sm font-bold text-gray-600 dark:text-gray-400 hover:text-[#018790] dark:hover:text-[#00b4c2] transition group w-fit">
                     <span class="transform group-hover:-translate-x-1 transition">&larr;</span> Back to Home & Verification
                 </button>
 
-                <div class="bg-white dark:bg-gray-800 rounded-2xl sm:rounded-3xl shadow-2xl overflow-hidden border border-purple-100 dark:border-gray-700">
+                <div class="bg-white dark:bg-gray-800 rounded-2xl sm:rounded-3xl shadow-2xl overflow-hidden border border-teal-100 dark:border-gray-700">
                     <div class="flex border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900">
                         <button id="tab-login" onclick="toggleAuthMode('login')" class="w-1/2 py-4 sm:py-5 text-center font-bold text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 transition outline-none text-sm sm:text-base">Login</button>
-                        <button id="tab-register" onclick="toggleAuthMode('register')" class="w-1/2 py-4 sm:py-5 text-center font-bold bg-white dark:bg-gray-800 text-[#6b21a8] dark:text-[#a855f7] border-b-2 border-[#6b21a8] dark:border-[#a855f7] transition outline-none text-sm sm:text-base">Register</button>
+                        <button id="tab-register" onclick="toggleAuthMode('register')" class="w-1/2 py-4 sm:py-5 text-center font-bold bg-white dark:bg-gray-800 text-[#018790] dark:text-[#00b4c2] border-b-2 border-[#018790] dark:border-[#00b4c2] transition outline-none text-sm sm:text-base">Register</button>
                     </div>
                     
                     <div class="p-6 sm:p-8 md:p-12">
                         <form id="form-login" onsubmit="handleLogin(event)" class="space-y-4 sm:space-y-5 hidden">
-                            <h2 class="text-2xl sm:text-3xl font-extrabold text-center text-[#2e1065] dark:text-white mb-6 sm:mb-8">Welcome Back</h2>
+                            <h2 class="text-2xl sm:text-3xl font-extrabold text-center text-[#003d42] dark:text-white mb-6 sm:mb-8">Welcome Back</h2>
                             <div>
                                 <label class="block text-xs sm:text-sm font-bold text-gray-700 dark:text-gray-300 mb-1.5 sm:mb-2">Email Address</label>
-                                <input type="email" id="login-email" placeholder="admin@mediverify.com" class="w-full px-4 py-3 bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 dark:text-white rounded-xl outline-none focus:ring-2 focus:ring-[#6b21a8]" required>
+                                <input type="email" id="login-email" placeholder="admin@mediverify.com" class="w-full px-4 py-3 bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 dark:text-white rounded-xl outline-none focus:ring-2 focus:ring-[#018790]" required>
                             </div>
                             <div>
                                 <label class="block text-xs sm:text-sm font-bold text-gray-700 dark:text-gray-300 mb-1.5 sm:mb-2">Password</label>
-                                <input type="password" id="login-pass" placeholder="••••••••" class="w-full px-4 py-3 bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 dark:text-white rounded-xl outline-none focus:ring-2 focus:ring-[#6b21a8]" required>
+                                <input type="password" id="login-pass" placeholder="••••••••" class="w-full px-4 py-3 bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 dark:text-white rounded-xl outline-none focus:ring-2 focus:ring-[#018790]" required>
                             </div>
                             <div id="login-error" class="text-red-500 text-xs sm:text-sm hidden text-center font-bold">Invalid Email or Password! Access Denied.</div>
-                            <button type="submit" class="w-full bg-[#6b21a8] hover:bg-[#581c87] text-white font-bold py-3.5 sm:py-4 rounded-xl shadow-lg transition text-base sm:text-lg mt-2 transform hover:-translate-y-0.5">Login to Dashboard</button>
+                            <button type="submit" class="w-full bg-[#018790] hover:bg-[#006b72] text-white font-bold py-3.5 sm:py-4 rounded-xl shadow-lg transition text-base sm:text-lg mt-2 transform hover:-translate-y-0.5">Login to Dashboard</button>
                             <div class="text-center text-[10px] sm:text-xs text-gray-400 dark:text-gray-500 mt-4">(Demo - Email: admin@mediverify.com | Pass: admin123)</div>
                         </form>
 
                         <form id="form-register" onsubmit="handleRegisterSubmit(event)" class="space-y-4 sm:space-y-5">
-                            <h2 class="text-2xl sm:text-3xl font-extrabold text-center text-[#2e1065] dark:text-white mb-6 sm:mb-8">Create an Account</h2>
+                            <h2 class="text-2xl sm:text-3xl font-extrabold text-center text-[#003d42] dark:text-white mb-6 sm:mb-8">Create an Account</h2>
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-5">
-                                <div><label class="block text-xs font-bold text-gray-700 dark:text-gray-300 mb-1">Full Name</label><input type="text" id="reg-name" required class="w-full px-3 sm:px-4 py-2.5 sm:py-3 bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 dark:text-white rounded-xl outline-none focus:ring-2 focus:ring-[#6b21a8] text-sm"></div>
-                                <div><label class="block text-xs font-bold text-gray-700 dark:text-gray-300 mb-1">Email Address</label><input type="email" id="reg-email" required class="w-full px-3 sm:px-4 py-2.5 sm:py-3 bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 dark:text-white rounded-xl outline-none focus:ring-2 focus:ring-[#6b21a8] text-sm"></div>
-                                <div><label class="block text-xs font-bold text-gray-700 dark:text-gray-300 mb-1">Mobile Number</label><input type="tel" id="reg-mobile" required class="w-full px-3 sm:px-4 py-2.5 sm:py-3 bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 dark:text-white rounded-xl outline-none focus:ring-2 focus:ring-[#6b21a8] text-sm"></div>
-                                <div><label class="block text-xs font-bold text-gray-700 dark:text-gray-300 mb-1">Organization</label><input type="text" id="reg-org" required class="w-full px-3 sm:px-4 py-2.5 sm:py-3 bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 dark:text-white rounded-xl outline-none focus:ring-2 focus:ring-[#6b21a8] text-sm"></div>
-                                <div><label class="block text-xs font-bold text-gray-700 dark:text-gray-300 mb-1">Role</label><select id="reg-role" required class="w-full px-3 sm:px-4 py-2.5 sm:py-3 bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 dark:text-white rounded-xl outline-none focus:ring-2 focus:ring-[#6b21a8] text-sm"><option>Pharmacist</option><option>Manufacturer</option></select></div>
-                                <div><label class="block text-xs font-bold text-gray-700 dark:text-gray-300 mb-1">License Number</label><input type="text" id="reg-license" required class="w-full px-3 sm:px-4 py-2.5 sm:py-3 bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 dark:text-white rounded-xl outline-none focus:ring-2 focus:ring-[#6b21a8] text-sm"></div>
-                                <div><label class="block text-xs font-bold text-gray-700 dark:text-gray-300 mb-1">Password</label><input type="password" id="reg-pass" required class="w-full px-3 sm:px-4 py-2.5 sm:py-3 bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 dark:text-white rounded-xl outline-none focus:ring-2 focus:ring-[#6b21a8] text-sm"></div>
-                                <div><label class="block text-xs font-bold text-gray-700 dark:text-gray-300 mb-1">Confirm Password</label><input type="password" id="reg-cpass" required class="w-full px-3 sm:px-4 py-2.5 sm:py-3 bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 dark:text-white rounded-xl outline-none focus:ring-2 focus:ring-[#6b21a8] text-sm"></div>
+                                <div><label class="block text-xs font-bold text-gray-700 dark:text-gray-300 mb-1">Full Name</label><input type="text" id="reg-name" required class="w-full px-3 sm:px-4 py-2.5 sm:py-3 bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 dark:text-white rounded-xl outline-none focus:ring-2 focus:ring-[#018790] text-sm"></div>
+                                <div><label class="block text-xs font-bold text-gray-700 dark:text-gray-300 mb-1">Email Address</label><input type="email" id="reg-email" required class="w-full px-3 sm:px-4 py-2.5 sm:py-3 bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 dark:text-white rounded-xl outline-none focus:ring-2 focus:ring-[#018790] text-sm"></div>
+                                <div><label class="block text-xs font-bold text-gray-700 dark:text-gray-300 mb-1">Mobile Number</label><input type="tel" id="reg-mobile" required class="w-full px-3 sm:px-4 py-2.5 sm:py-3 bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 dark:text-white rounded-xl outline-none focus:ring-2 focus:ring-[#018790] text-sm"></div>
+                                <div><label class="block text-xs font-bold text-gray-700 dark:text-gray-300 mb-1">Organization</label><input type="text" id="reg-org" required class="w-full px-3 sm:px-4 py-2.5 sm:py-3 bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 dark:text-white rounded-xl outline-none focus:ring-2 focus:ring-[#018790] text-sm"></div>
+                                <div><label class="block text-xs font-bold text-gray-700 dark:text-gray-300 mb-1">Role</label><select id="reg-role" required class="w-full px-3 sm:px-4 py-2.5 sm:py-3 bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 dark:text-white rounded-xl outline-none focus:ring-2 focus:ring-[#018790] text-sm"><option>Pharmacist</option><option>Manufacturer</option></select></div>
+                                <div><label class="block text-xs font-bold text-gray-700 dark:text-gray-300 mb-1">License Number</label><input type="text" id="reg-license" required class="w-full px-3 sm:px-4 py-2.5 sm:py-3 bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 dark:text-white rounded-xl outline-none focus:ring-2 focus:ring-[#018790] text-sm"></div>
+                                <div><label class="block text-xs font-bold text-gray-700 dark:text-gray-300 mb-1">Password</label><input type="password" id="reg-pass" required class="w-full px-3 sm:px-4 py-2.5 sm:py-3 bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 dark:text-white rounded-xl outline-none focus:ring-2 focus:ring-[#018790] text-sm"></div>
+                                <div><label class="block text-xs font-bold text-gray-700 dark:text-gray-300 mb-1">Confirm Password</label><input type="password" id="reg-cpass" required class="w-full px-3 sm:px-4 py-2.5 sm:py-3 bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 dark:text-white rounded-xl outline-none focus:ring-2 focus:ring-[#018790] text-sm"></div>
                             </div>
-                            <button type="submit" class="w-full bg-[#6b21a8] hover:bg-[#581c87] text-white font-bold py-3.5 sm:py-4 rounded-xl shadow-lg transition text-base sm:text-lg mt-2 sm:mt-4 transform hover:-translate-y-0.5">Get OTP to Register</button>
+                            <button type="submit" class="w-full bg-[#018790] hover:bg-[#006b72] text-white font-bold py-3.5 sm:py-4 rounded-xl shadow-lg transition text-base sm:text-lg mt-2 sm:mt-4 transform hover:-translate-y-0.5">Get OTP to Register</button>
                         </form>
 
                         <form id="form-register-otp" onsubmit="verifyRegisterOTP(event)" class="space-y-4 sm:space-y-5 hidden">
-                            <h2 class="text-2xl sm:text-3xl font-extrabold text-center text-[#2e1065] dark:text-white mb-2">Verify OTP</h2>
+                            <h2 class="text-2xl sm:text-3xl font-extrabold text-center text-[#003d42] dark:text-white mb-2">Verify OTP</h2>
                             <p class="text-xs sm:text-sm text-center text-gray-600 dark:text-gray-400 mb-6 sm:mb-8">Enter the 6-digit code sent to your email.</p>
                             <div>
-                                <input type="text" id="reg-otp-input" placeholder="••••••" maxlength="6" class="w-full px-4 py-3 sm:py-4 bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 dark:text-white rounded-xl text-center tracking-[0.5em] sm:tracking-[1em] text-2xl sm:text-3xl font-black focus:ring-2 focus:ring-[#6b21a8] outline-none" required>
+                                <input type="text" id="reg-otp-input" placeholder="••••••" maxlength="6" class="w-full px-4 py-3 sm:py-4 bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 dark:text-white rounded-xl text-center tracking-[0.5em] sm:tracking-[1em] text-2xl sm:text-3xl font-black focus:ring-2 focus:ring-[#018790] outline-none" required>
                             </div>
                             <button type="submit" class="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-3.5 sm:py-4 rounded-xl shadow-lg transition text-base sm:text-lg mt-2 sm:mt-4">Verify & Complete</button>
                             <button type="button" onclick="toggleAuthMode('register')" class="w-full bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 font-bold py-2.5 sm:py-3 rounded-xl transition text-sm sm:text-base">Go Back</button>
@@ -314,47 +313,120 @@
             </div>
         </div>
 
+        <div id="view-admin-dashboard" class="view-section hidden max-w-6xl mx-auto pt-6 sm:pt-8 pb-12 sm:pb-16 px-4 sm:px-6 relative">
+            <div class="flex flex-col sm:flex-row justify-between items-center mb-6 sm:mb-8 gap-4">
+                <h2 class="text-3xl sm:text-4xl font-extrabold text-[#003d42] dark:text-white">Admin Dashboard</h2>
+                <button onclick="switchView('admin-add')" class="w-full sm:w-auto flex items-center justify-center gap-2 bg-[#018790] hover:bg-[#006b72] text-white font-bold py-3 px-6 rounded-xl shadow-lg transition transform hover:-translate-y-0.5 text-sm sm:text-base">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+                    Register New Tablet
+                </button>
+            </div>
+            
+            <div class="bg-white dark:bg-gray-800 rounded-2xl sm:rounded-3xl shadow-sm border border-gray-100 dark:border-gray-700 p-5 sm:p-8 overflow-hidden">
+                <div class="flex items-center gap-3 mb-6">
+                    <div class="bg-teal-50 dark:bg-teal-900/30 p-2.5 rounded-xl text-[#018790] dark:text-[#00b4c2]">
+                        <svg class="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"></path></svg>
+                    </div>
+                    <h3 class="text-lg sm:text-xl font-bold text-gray-900 dark:text-white">Realtime Overview</h3>
+                </div>
+                
+                <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-6 lg:gap-0 lg:divide-x divide-gray-100 dark:divide-gray-700 mb-8 pb-8 border-b border-gray-100 dark:border-gray-700">
+                    <div class="lg:px-6 first:pl-0 last:pr-0">
+                        <p class="text-xs sm:text-sm font-semibold text-gray-500 dark:text-gray-400 mb-1.5">Total Verifications</p>
+                        <div class="flex items-center gap-2">
+                            <span class="text-2xl sm:text-3xl font-black text-gray-800 dark:text-white" id="kpi-total-scans">0</span>
+                            <span class="text-[10px] font-bold text-teal-600 bg-teal-50 dark:bg-teal-900/30 px-1.5 py-0.5 rounded tracking-wide">+12%</span>
+                        </div>
+                    </div>
+                    <div class="lg:px-6 first:pl-0 last:pr-0">
+                        <p class="text-xs sm:text-sm font-semibold text-gray-500 dark:text-gray-400 mb-1.5">Registered Meds</p>
+                        <div class="flex items-center gap-2">
+                            <span class="text-2xl sm:text-3xl font-black text-gray-800 dark:text-white" id="kpi-registered-meds">0</span>
+                        </div>
+                    </div>
+                    <div class="lg:px-6 first:pl-0 last:pr-0">
+                        <p class="text-xs sm:text-sm font-semibold text-gray-500 dark:text-gray-400 mb-1.5">Active Batches</p>
+                        <div class="flex items-center gap-2">
+                            <span class="text-2xl sm:text-3xl font-black text-gray-800 dark:text-white" id="kpi-active-batches">0</span>
+                            <span class="text-[10px] font-bold text-teal-600 bg-teal-50 dark:bg-teal-900/30 px-1.5 py-0.5 rounded tracking-wide">+4%</span>
+                        </div>
+                    </div>
+                    <div class="lg:px-6 first:pl-0 last:pr-0">
+                        <p class="text-xs sm:text-sm font-semibold text-gray-500 dark:text-gray-400 mb-1.5">Expired Batches</p>
+                        <div class="flex items-center gap-2">
+                            <span class="text-2xl sm:text-3xl font-black text-gray-800 dark:text-white" id="kpi-expired-batches">0</span>
+                        </div>
+                    </div>
+                    <div class="lg:px-6 first:pl-0 last:pr-0">
+                        <p class="text-xs sm:text-sm font-semibold text-gray-500 dark:text-gray-400 mb-1.5">Suspicious Scans</p>
+                        <div class="flex items-center gap-2">
+                            <span class="text-2xl sm:text-3xl font-black text-gray-800 dark:text-white" id="kpi-suspicious">0</span>
+                            <span class="text-[10px] font-bold text-red-600 bg-red-50 dark:bg-red-900/30 px-1.5 py-0.5 rounded tracking-wide">Alert</span>
+                        </div>
+                    </div>
+                    <div class="lg:px-6 first:pl-0 last:pr-0">
+                        <p class="text-xs sm:text-sm font-semibold text-gray-500 dark:text-gray-400 mb-1.5">Verifications Today</p>
+                        <div class="flex items-center gap-2">
+                            <span class="text-2xl sm:text-3xl font-black text-gray-800 dark:text-white" id="kpi-scans-today">0</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div>
+                    <div class="flex items-center justify-between mb-4">
+                        <h4 class="text-sm font-bold text-gray-700 dark:text-gray-300 uppercase tracking-wide">Traffic & Scan Trends (Last 7 Days)</h4>
+                    </div>
+                    <div class="relative h-64 sm:h-80 w-full">
+                        <canvas id="trendChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <div id="view-admin-add" class="view-section hidden max-w-5xl mx-auto pt-6 sm:pt-8 pb-12 sm:pb-16 px-4 sm:px-6 relative">
-            <h2 class="text-3xl sm:text-4xl font-extrabold text-[#2e1065] dark:text-white mb-6 sm:mb-8 text-center">Add Medicine</h2>
-            <div class="bg-white dark:bg-gray-800 rounded-2xl sm:rounded-3xl shadow-xl border-t-8 border-t-[#6b21a8] p-6 sm:p-10 relative z-10">
+            <button onclick="switchView('admin-dashboard')" class="mb-4 sm:mb-6 flex items-center gap-2 text-xs sm:text-sm font-bold text-gray-600 dark:text-gray-400 hover:text-[#018790] dark:hover:text-[#00b4c2] transition group w-fit">
+                <span class="transform group-hover:-translate-x-1 transition">&larr;</span> Back to Dashboard
+            </button>
+            <h2 class="text-3xl sm:text-4xl font-extrabold text-[#003d42] dark:text-white mb-6 sm:mb-8 text-center">Register New Tablet</h2>
+            <div class="bg-white dark:bg-gray-800 rounded-2xl sm:rounded-3xl shadow-xl border-t-8 border-t-[#018790] p-6 sm:p-10 relative z-10">
                 <form id="add-medicine-form" onsubmit="addMedicine(event)" class="space-y-4 sm:space-y-6">
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6">
                         <div class="md:col-span-1">
                             <label class="block text-xs sm:text-sm font-bold text-gray-700 dark:text-gray-300 mb-1.5 sm:mb-2">Barcode</label>
-                            <input type="text" id="new-barcode" required class="w-full px-3 sm:px-4 py-2.5 sm:py-3 bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 dark:text-white rounded-xl outline-none focus:ring-2 focus:ring-[#6b21a8] text-sm">
+                            <input type="text" id="new-barcode" required class="w-full px-3 sm:px-4 py-2.5 sm:py-3 bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 dark:text-white rounded-xl outline-none focus:ring-2 focus:ring-[#018790] text-sm">
                         </div>
                         <div class="md:col-span-2">
                             <label class="block text-xs sm:text-sm font-bold text-gray-700 dark:text-gray-300 mb-1.5 sm:mb-2">Medicine Name</label>
-                            <input type="text" id="new-name" list="top-medicines" required class="w-full px-3 sm:px-4 py-2.5 sm:py-3 bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 dark:text-white rounded-xl outline-none focus:ring-2 focus:ring-[#6b21a8] text-sm">
+                            <input type="text" id="new-name" list="top-medicines" required class="w-full px-3 sm:px-4 py-2.5 sm:py-3 bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 dark:text-white rounded-xl outline-none focus:ring-2 focus:ring-[#018790] text-sm">
                         </div>
-                        <div><label class="block text-xs sm:text-sm font-bold text-gray-700 dark:text-gray-300 mb-1.5 sm:mb-2">Manufacturer</label><input type="text" id="new-manufacturer" required class="w-full px-3 sm:px-4 py-2.5 sm:py-3 bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 dark:text-white rounded-xl outline-none focus:ring-2 focus:ring-[#6b21a8] text-sm"></div>
-                        <div><label class="block text-xs sm:text-sm font-bold text-gray-700 dark:text-gray-300 mb-1.5 sm:mb-2">Batch</label><input type="text" id="new-batch" required class="w-full px-3 sm:px-4 py-2.5 sm:py-3 bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 dark:text-white rounded-xl outline-none focus:ring-2 focus:ring-[#6b21a8] text-sm"></div>
-                        <div><label class="block text-xs sm:text-sm font-bold text-gray-700 dark:text-gray-300 mb-1.5 sm:mb-2">Expiry Date</label><input type="date" id="new-expiry" required class="w-full px-3 sm:px-4 py-2.5 sm:py-3 bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 dark:text-white rounded-xl outline-none focus:ring-2 focus:ring-[#6b21a8] text-sm"></div>
-                        <div class="md:col-span-3"><label class="block text-xs sm:text-sm font-bold text-gray-700 dark:text-gray-300 mb-1.5 sm:mb-2">Purpose</label><input type="text" id="new-purpose" required class="w-full px-3 sm:px-4 py-2.5 sm:py-3 bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 dark:text-white rounded-xl outline-none focus:ring-2 focus:ring-[#6b21a8] text-sm"></div>
-                        <div class="md:col-span-3"><label class="block text-xs sm:text-sm font-bold text-gray-700 dark:text-gray-300 mb-1.5 sm:mb-2">Dosage</label><input type="text" id="new-dosage" required class="w-full px-3 sm:px-4 py-2.5 sm:py-3 bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 dark:text-white rounded-xl outline-none focus:ring-2 focus:ring-[#6b21a8] text-sm"></div>
-                        <div class="md:col-span-3"><label class="block text-xs sm:text-sm font-bold text-gray-700 dark:text-gray-300 mb-1.5 sm:mb-2">Who Can Use</label><input type="text" id="new-who" required class="w-full px-3 sm:px-4 py-2.5 sm:py-3 bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 dark:text-white rounded-xl outline-none focus:ring-2 focus:ring-[#6b21a8] text-sm"></div>
-                        <div class="md:col-span-3"><label class="block text-xs sm:text-sm font-bold text-gray-700 dark:text-gray-300 mb-1.5 sm:mb-2">Precaution</label><input type="text" id="new-precaution" required class="w-full px-3 sm:px-4 py-2.5 sm:py-3 bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 dark:text-white rounded-xl outline-none focus:ring-2 focus:ring-[#6b21a8] text-sm"></div>
-                        <div class="md:col-span-2"><label class="block text-xs sm:text-sm font-bold text-gray-700 dark:text-gray-300 mb-1.5 sm:mb-2">Side Effects</label><input type="text" id="new-sideeffects" required class="w-full px-3 sm:px-4 py-2.5 sm:py-3 bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 dark:text-white rounded-xl outline-none focus:ring-2 focus:ring-[#6b21a8] text-sm"></div>
-                        <div><label class="block text-xs sm:text-sm font-bold text-gray-700 dark:text-gray-300 mb-1.5 sm:mb-2">Status</label><select id="new-status" class="w-full px-3 sm:px-4 py-2.5 sm:py-3 bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 dark:text-white rounded-xl outline-none focus:ring-2 focus:ring-[#6b21a8] text-sm"><option value="authentic">Authentic</option><option value="recalled">Recalled</option><option value="expired">Expired</option></select></div>
+                        <div><label class="block text-xs sm:text-sm font-bold text-gray-700 dark:text-gray-300 mb-1.5 sm:mb-2">Manufacturer</label><input type="text" id="new-manufacturer" required class="w-full px-3 sm:px-4 py-2.5 sm:py-3 bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 dark:text-white rounded-xl outline-none focus:ring-2 focus:ring-[#018790] text-sm"></div>
+                        <div><label class="block text-xs sm:text-sm font-bold text-gray-700 dark:text-gray-300 mb-1.5 sm:mb-2">Batch</label><input type="text" id="new-batch" required class="w-full px-3 sm:px-4 py-2.5 sm:py-3 bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 dark:text-white rounded-xl outline-none focus:ring-2 focus:ring-[#018790] text-sm"></div>
+                        <div><label class="block text-xs sm:text-sm font-bold text-gray-700 dark:text-gray-300 mb-1.5 sm:mb-2">Expiry Date</label><input type="date" id="new-expiry" required class="w-full px-3 sm:px-4 py-2.5 sm:py-3 bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 dark:text-white rounded-xl outline-none focus:ring-2 focus:ring-[#018790] text-sm"></div>
+                        <div class="md:col-span-3"><label class="block text-xs sm:text-sm font-bold text-gray-700 dark:text-gray-300 mb-1.5 sm:mb-2">Purpose</label><input type="text" id="new-purpose" required class="w-full px-3 sm:px-4 py-2.5 sm:py-3 bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 dark:text-white rounded-xl outline-none focus:ring-2 focus:ring-[#018790] text-sm"></div>
+                        <div class="md:col-span-3"><label class="block text-xs sm:text-sm font-bold text-gray-700 dark:text-gray-300 mb-1.5 sm:mb-2">Dosage</label><input type="text" id="new-dosage" required class="w-full px-3 sm:px-4 py-2.5 sm:py-3 bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 dark:text-white rounded-xl outline-none focus:ring-2 focus:ring-[#018790] text-sm"></div>
+                        <div class="md:col-span-3"><label class="block text-xs sm:text-sm font-bold text-gray-700 dark:text-gray-300 mb-1.5 sm:mb-2">Who Can Use</label><input type="text" id="new-who" required class="w-full px-3 sm:px-4 py-2.5 sm:py-3 bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 dark:text-white rounded-xl outline-none focus:ring-2 focus:ring-[#018790] text-sm"></div>
+                        <div class="md:col-span-3"><label class="block text-xs sm:text-sm font-bold text-gray-700 dark:text-gray-300 mb-1.5 sm:mb-2">Precaution</label><input type="text" id="new-precaution" required class="w-full px-3 sm:px-4 py-2.5 sm:py-3 bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 dark:text-white rounded-xl outline-none focus:ring-2 focus:ring-[#018790] text-sm"></div>
+                        <div class="md:col-span-2"><label class="block text-xs sm:text-sm font-bold text-gray-700 dark:text-gray-300 mb-1.5 sm:mb-2">Side Effects</label><input type="text" id="new-sideeffects" required class="w-full px-3 sm:px-4 py-2.5 sm:py-3 bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 dark:text-white rounded-xl outline-none focus:ring-2 focus:ring-[#018790] text-sm"></div>
+                        <div><label class="block text-xs sm:text-sm font-bold text-gray-700 dark:text-gray-300 mb-1.5 sm:mb-2">Status</label><select id="new-status" class="w-full px-3 sm:px-4 py-2.5 sm:py-3 bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 dark:text-white rounded-xl outline-none focus:ring-2 focus:ring-[#018790] text-sm"><option value="authentic">Authentic</option><option value="recalled">Recalled</option><option value="expired">Expired</option></select></div>
                     </div>
-                    <button type="submit" class="w-full bg-[#6b21a8] hover:bg-[#581c87] text-white font-bold py-3.5 sm:py-4 rounded-xl mt-6 sm:mt-8 transition shadow-lg text-base sm:text-lg transform hover:-translate-y-0.5">+ Save to Database</button>
+                    <button type="submit" class="w-full bg-[#018790] hover:bg-[#006b72] text-white font-bold py-3.5 sm:py-4 rounded-xl mt-6 sm:mt-8 transition shadow-lg text-base sm:text-lg transform hover:-translate-y-0.5">+ Save to Database</button>
                 </form>
             </div>
         </div>
 
         <div id="view-admin-list" class="view-section hidden pt-6 sm:pt-8 pb-12 sm:pb-16 px-4 sm:px-6">
-            <h2 class="text-3xl sm:text-4xl font-extrabold text-[#2e1065] dark:text-white mb-6 sm:mb-8 text-center">Manage Database</h2>
+            <h2 class="text-3xl sm:text-4xl font-extrabold text-[#003d42] dark:text-white mb-6 sm:mb-8 text-center">Manage Database</h2>
             
-            <div class="bg-white dark:bg-gray-800 rounded-2xl sm:rounded-3xl shadow-xl border-t-8 border-t-[#6b21a8] dark:border-gray-700 overflow-hidden max-w-6xl mx-auto">
+            <div class="bg-white dark:bg-gray-800 rounded-2xl sm:rounded-3xl shadow-xl border-t-8 border-t-[#018790] dark:border-gray-700 overflow-hidden max-w-6xl mx-auto">
                 <div class="overflow-x-auto">
                     <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
-                        <thead class="bg-purple-50 dark:bg-gray-900">
+                        <thead class="bg-teal-50 dark:bg-gray-900">
                             <tr>
-                                <th class="px-4 sm:px-5 py-3 sm:py-4 text-left text-[10px] sm:text-xs font-bold text-[#6b21a8] dark:text-purple-400 uppercase tracking-wider">Barcode</th>
-                                <th class="px-4 sm:px-5 py-3 sm:py-4 text-left text-[10px] sm:text-xs font-bold text-[#6b21a8] dark:text-purple-400 uppercase tracking-wider">Name</th>
-                                <th class="px-4 sm:px-5 py-3 sm:py-4 text-left text-[10px] sm:text-xs font-bold text-[#6b21a8] dark:text-purple-400 uppercase tracking-wider">Status</th>
-                                <th class="px-4 sm:px-5 py-3 sm:py-4 text-center text-[10px] sm:text-xs font-bold text-[#6b21a8] dark:text-purple-400 uppercase tracking-wider">History</th>
-                                <th class="px-4 sm:px-5 py-3 sm:py-4 text-right text-[10px] sm:text-xs font-bold text-[#6b21a8] dark:text-purple-400 uppercase tracking-wider">Action</th>
+                                <th class="px-4 sm:px-5 py-3 sm:py-4 text-left text-[10px] sm:text-xs font-bold text-[#018790] dark:text-teal-400 uppercase tracking-wider">Barcode</th>
+                                <th class="px-4 sm:px-5 py-3 sm:py-4 text-left text-[10px] sm:text-xs font-bold text-[#018790] dark:text-teal-400 uppercase tracking-wider">Name</th>
+                                <th class="px-4 sm:px-5 py-3 sm:py-4 text-left text-[10px] sm:text-xs font-bold text-[#018790] dark:text-teal-400 uppercase tracking-wider">Status</th>
+                                <th class="px-4 sm:px-5 py-3 sm:py-4 text-center text-[10px] sm:text-xs font-bold text-[#018790] dark:text-teal-400 uppercase tracking-wider">History</th>
+                                <th class="px-4 sm:px-5 py-3 sm:py-4 text-right text-[10px] sm:text-xs font-bold text-[#018790] dark:text-teal-400 uppercase tracking-wider">Action</th>
                             </tr>
                         </thead>
                         <tbody id="medicine-table-body" class="bg-white dark:bg-gray-800 divide-y divide-gray-100 dark:divide-gray-800 text-gray-900 dark:text-white">
@@ -365,21 +437,21 @@
         </div>
 
         <div id="view-admin-edit" class="view-section hidden max-w-5xl mx-auto pt-6 sm:pt-8 pb-12 sm:pb-16 px-4 sm:px-6">
-            <h2 class="text-3xl sm:text-4xl font-extrabold text-[#2e1065] dark:text-white mb-6 sm:mb-8 text-center">Edit Medicine Record</h2>
+            <h2 class="text-3xl sm:text-4xl font-extrabold text-[#003d42] dark:text-white mb-6 sm:mb-8 text-center">Edit Medicine Record</h2>
             <div class="bg-white dark:bg-gray-800 rounded-2xl sm:rounded-3xl shadow-xl p-6 sm:p-10 border border-gray-100 dark:border-gray-700">
                 <form id="edit-medicine-form" onsubmit="updateMedicine(event)" class="space-y-4 sm:space-y-6">
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6">
                         <div class="md:col-span-1"><label class="block text-xs sm:text-sm font-bold text-gray-700 dark:text-gray-300 mb-1.5 sm:mb-2">Barcode</label><input type="text" id="edit-barcode" readonly class="w-full px-3 sm:px-4 py-2.5 sm:py-3 bg-gray-100 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 text-gray-500 cursor-not-allowed rounded-xl text-sm"></div>
-                        <div class="md:col-span-2"><label class="block text-xs sm:text-sm font-bold text-gray-700 dark:text-gray-300 mb-1.5 sm:mb-2">Medicine Name</label><input type="text" id="edit-name" list="top-medicines" required class="w-full px-3 sm:px-4 py-2.5 sm:py-3 bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 dark:text-white rounded-xl outline-none focus:ring-2 focus:ring-[#6b21a8] text-sm"></div>
-                        <div><label class="block text-xs sm:text-sm font-bold text-gray-700 dark:text-gray-300 mb-1.5 sm:mb-2">Manufacturer</label><input type="text" id="edit-manufacturer" required class="w-full px-3 sm:px-4 py-2.5 sm:py-3 bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 dark:text-white rounded-xl outline-none focus:ring-2 focus:ring-[#6b21a8] text-sm"></div>
-                        <div><label class="block text-xs sm:text-sm font-bold text-gray-700 dark:text-gray-300 mb-1.5 sm:mb-2">Batch Number</label><input type="text" id="edit-batch" required class="w-full px-3 sm:px-4 py-2.5 sm:py-3 bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 dark:text-white rounded-xl outline-none focus:ring-2 focus:ring-[#6b21a8] text-sm"></div>
-                        <div><label class="block text-xs sm:text-sm font-bold text-gray-700 dark:text-gray-300 mb-1.5 sm:mb-2">Expiry Date</label><input type="date" id="edit-expiry" required class="w-full px-3 sm:px-4 py-2.5 sm:py-3 bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 dark:text-white rounded-xl outline-none focus:ring-2 focus:ring-[#6b21a8] text-sm"></div>
-                        <div class="md:col-span-3"><label class="block text-xs sm:text-sm font-bold text-gray-700 dark:text-gray-300 mb-1.5 sm:mb-2">Purpose</label><input type="text" id="edit-purpose" required class="w-full px-3 sm:px-4 py-2.5 sm:py-3 bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 dark:text-white rounded-xl outline-none focus:ring-2 focus:ring-[#6b21a8] text-sm"></div>
-                        <div class="md:col-span-3"><label class="block text-xs sm:text-sm font-bold text-gray-700 dark:text-gray-300 mb-1.5 sm:mb-2">Dosage</label><input type="text" id="edit-dosage" required class="w-full px-3 sm:px-4 py-2.5 sm:py-3 bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 dark:text-white rounded-xl outline-none focus:ring-2 focus:ring-[#6b21a8] text-sm"></div>
-                        <div class="md:col-span-3"><label class="block text-xs sm:text-sm font-bold text-gray-700 dark:text-gray-300 mb-1.5 sm:mb-2">Who Can Use</label><input type="text" id="edit-who" required class="w-full px-3 sm:px-4 py-2.5 sm:py-3 bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 dark:text-white rounded-xl outline-none focus:ring-2 focus:ring-[#6b21a8] text-sm"></div>
-                        <div class="md:col-span-3"><label class="block text-xs sm:text-sm font-bold text-gray-700 dark:text-gray-300 mb-1.5 sm:mb-2">Precaution</label><input type="text" id="edit-precaution" required class="w-full px-3 sm:px-4 py-2.5 sm:py-3 bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 dark:text-white rounded-xl outline-none focus:ring-2 focus:ring-[#6b21a8] text-sm"></div>
-                        <div class="md:col-span-2"><label class="block text-xs sm:text-sm font-bold text-gray-700 dark:text-gray-300 mb-1.5 sm:mb-2">Side Effects</label><input type="text" id="edit-sideeffects" required class="w-full px-3 sm:px-4 py-2.5 sm:py-3 bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 dark:text-white rounded-xl outline-none focus:ring-2 focus:ring-[#6b21a8] text-sm"></div>
-                        <div><label class="block text-xs sm:text-sm font-bold text-gray-700 dark:text-gray-300 mb-1.5 sm:mb-2">Status</label><select id="edit-status" class="w-full px-3 sm:px-4 py-2.5 sm:py-3 bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 dark:text-white rounded-xl outline-none focus:ring-2 focus:ring-[#6b21a8] text-sm"><option value="authentic">Authentic</option><option value="recalled">Recalled</option><option value="expired">Expired</option></select></div>
+                        <div class="md:col-span-2"><label class="block text-xs sm:text-sm font-bold text-gray-700 dark:text-gray-300 mb-1.5 sm:mb-2">Medicine Name</label><input type="text" id="edit-name" list="top-medicines" required class="w-full px-3 sm:px-4 py-2.5 sm:py-3 bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 dark:text-white rounded-xl outline-none focus:ring-2 focus:ring-[#018790] text-sm"></div>
+                        <div><label class="block text-xs sm:text-sm font-bold text-gray-700 dark:text-gray-300 mb-1.5 sm:mb-2">Manufacturer</label><input type="text" id="edit-manufacturer" required class="w-full px-3 sm:px-4 py-2.5 sm:py-3 bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 dark:text-white rounded-xl outline-none focus:ring-2 focus:ring-[#018790] text-sm"></div>
+                        <div><label class="block text-xs sm:text-sm font-bold text-gray-700 dark:text-gray-300 mb-1.5 sm:mb-2">Batch Number</label><input type="text" id="edit-batch" required class="w-full px-3 sm:px-4 py-2.5 sm:py-3 bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 dark:text-white rounded-xl outline-none focus:ring-2 focus:ring-[#018790] text-sm"></div>
+                        <div><label class="block text-xs sm:text-sm font-bold text-gray-700 dark:text-gray-300 mb-1.5 sm:mb-2">Expiry Date</label><input type="date" id="edit-expiry" required class="w-full px-3 sm:px-4 py-2.5 sm:py-3 bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 dark:text-white rounded-xl outline-none focus:ring-2 focus:ring-[#018790] text-sm"></div>
+                        <div class="md:col-span-3"><label class="block text-xs sm:text-sm font-bold text-gray-700 dark:text-gray-300 mb-1.5 sm:mb-2">Purpose</label><input type="text" id="edit-purpose" required class="w-full px-3 sm:px-4 py-2.5 sm:py-3 bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 dark:text-white rounded-xl outline-none focus:ring-2 focus:ring-[#018790] text-sm"></div>
+                        <div class="md:col-span-3"><label class="block text-xs sm:text-sm font-bold text-gray-700 dark:text-gray-300 mb-1.5 sm:mb-2">Dosage</label><input type="text" id="edit-dosage" required class="w-full px-3 sm:px-4 py-2.5 sm:py-3 bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 dark:text-white rounded-xl outline-none focus:ring-2 focus:ring-[#018790] text-sm"></div>
+                        <div class="md:col-span-3"><label class="block text-xs sm:text-sm font-bold text-gray-700 dark:text-gray-300 mb-1.5 sm:mb-2">Who Can Use</label><input type="text" id="edit-who" required class="w-full px-3 sm:px-4 py-2.5 sm:py-3 bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 dark:text-white rounded-xl outline-none focus:ring-2 focus:ring-[#018790] text-sm"></div>
+                        <div class="md:col-span-3"><label class="block text-xs sm:text-sm font-bold text-gray-700 dark:text-gray-300 mb-1.5 sm:mb-2">Precaution</label><input type="text" id="edit-precaution" required class="w-full px-3 sm:px-4 py-2.5 sm:py-3 bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 dark:text-white rounded-xl outline-none focus:ring-2 focus:ring-[#018790] text-sm"></div>
+                        <div class="md:col-span-2"><label class="block text-xs sm:text-sm font-bold text-gray-700 dark:text-gray-300 mb-1.5 sm:mb-2">Side Effects</label><input type="text" id="edit-sideeffects" required class="w-full px-3 sm:px-4 py-2.5 sm:py-3 bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 dark:text-white rounded-xl outline-none focus:ring-2 focus:ring-[#018790] text-sm"></div>
+                        <div><label class="block text-xs sm:text-sm font-bold text-gray-700 dark:text-gray-300 mb-1.5 sm:mb-2">Status</label><select id="edit-status" class="w-full px-3 sm:px-4 py-2.5 sm:py-3 bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 dark:text-white rounded-xl outline-none focus:ring-2 focus:ring-[#018790] text-sm"><option value="authentic">Authentic</option><option value="recalled">Recalled</option><option value="expired">Expired</option></select></div>
                     </div>
                     <div class="flex flex-col sm:flex-row justify-between gap-4 mt-8 sm:mt-10 pt-6 sm:pt-8 border-t dark:border-gray-700">
                         <div class="flex flex-col sm:flex-row gap-3 sm:gap-4 w-full sm:w-auto">
@@ -387,7 +459,7 @@
                         </div>
                         <div class="flex flex-col sm:flex-row gap-3 sm:gap-4 w-full sm:w-auto">
                             <button type="button" onclick="switchView('admin-list')" class="w-full sm:w-auto bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-white font-bold py-3 px-6 rounded-xl hover:bg-gray-200 transition text-sm sm:text-base">Cancel</button>
-                            <button type="submit" class="w-full sm:w-auto bg-[#6b21a8] hover:bg-[#581c87] text-white font-bold py-3 px-8 rounded-xl shadow-lg transition transform hover:-translate-y-0.5 text-sm sm:text-base">Save Changes</button>
+                            <button type="submit" class="w-full sm:w-auto bg-[#018790] hover:bg-[#006b72] text-white font-bold py-3 px-8 rounded-xl shadow-lg transition transform hover:-translate-y-0.5 text-sm sm:text-base">Save Changes</button>
                         </div>
                     </div>
                 </form>
@@ -395,14 +467,14 @@
         </div>
 
         <div id="view-admin-history" class="view-section hidden pt-6 sm:pt-8 pb-12 sm:pb-16 px-4 sm:px-6">
-            <h2 class="text-3xl sm:text-4xl font-extrabold text-[#2e1065] dark:text-white mb-2 text-center">Scan History Log</h2>
+            <h2 class="text-3xl sm:text-4xl font-extrabold text-[#003d42] dark:text-white mb-2 text-center">Scan History Log</h2>
             <p class="text-sm sm:text-base text-center text-gray-600 dark:text-gray-400 mb-6 sm:mb-8 font-medium" id="history-subtitle"></p>
             <div class="bg-white dark:bg-gray-800 rounded-2xl sm:rounded-3xl shadow-xl p-4 sm:p-8 overflow-x-auto border border-gray-100 dark:border-gray-700">
                 <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700 mb-6 sm:mb-8">
-                    <thead class="bg-purple-50 dark:bg-gray-900">
+                    <thead class="bg-teal-50 dark:bg-gray-900">
                         <tr>
-                            <th class="px-4 sm:px-8 py-3 sm:py-5 text-left text-[10px] sm:text-xs font-bold text-[#6b21a8] dark:text-purple-400 uppercase tracking-wider">Scan Date & Time</th>
-                            <th class="px-4 sm:px-8 py-3 sm:py-5 text-left text-[10px] sm:text-xs font-bold text-[#6b21a8] dark:text-purple-400 uppercase tracking-wider">Location Scanned</th>
+                            <th class="px-4 sm:px-8 py-3 sm:py-5 text-left text-[10px] sm:text-xs font-bold text-[#018790] dark:text-teal-400 uppercase tracking-wider">Scan Date & Time</th>
+                            <th class="px-4 sm:px-8 py-3 sm:py-5 text-left text-[10px] sm:text-xs font-bold text-[#018790] dark:text-teal-400 uppercase tracking-wider">Location Scanned</th>
                         </tr>
                     </thead>
                     <tbody id="scan-history-body" class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700 text-gray-900 dark:text-white"></tbody>
