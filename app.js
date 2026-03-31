@@ -232,7 +232,9 @@ function goToSection(sectionId) {
     }
 }
 
-let pendingRegistration = null;
+
+// --- SECURE LOGIN AND REGISTRATION FLOW (3-STEP) ---
+let tempRegEmail = "";
 let registrationOTP = null;
 
 function requireAdminLogin(mode = 'register') {
@@ -242,8 +244,9 @@ function requireAdminLogin(mode = 'register') {
 
 function toggleAuthMode(mode) {
     document.getElementById('form-login').classList.add('hidden');
-    document.getElementById('form-register').classList.add('hidden');
+    document.getElementById('form-register-init').classList.add('hidden');
     document.getElementById('form-register-otp').classList.add('hidden');
+    document.getElementById('form-register-details').classList.add('hidden');
     
     const tabLogin = document.getElementById('tab-login');
     const tabRegister = document.getElementById('tab-register');
@@ -257,12 +260,14 @@ function toggleAuthMode(mode) {
         document.getElementById('login-error').classList.add('hidden');
         document.getElementById('form-login').reset();
     } else {
-        document.getElementById('form-register').classList.remove('hidden');
+        // Start Registration Flow from Step 1
+        document.getElementById('form-register-init').classList.remove('hidden');
         tabRegister.className = "w-1/2 py-4 sm:py-5 text-center font-bold bg-white dark:bg-gray-800 text-[#018790] dark:text-[#00b4c2] border-b-2 border-[#018790] dark:border-[#00b4c2] transition outline-none text-sm sm:text-base";
-        document.getElementById('form-register').reset();
+        document.getElementById('form-register-init').reset();
         document.getElementById('form-register-otp').reset();
-        pendingRegistration = null;
+        document.getElementById('form-register-details').reset();
         registrationOTP = null;
+        tempRegEmail = "";
     }
 }
 
@@ -283,45 +288,62 @@ function handleLogin(event) {
     }
 }
 
-function handleRegisterSubmit(event) {
+// Step 1: Send OTP to Email
+function initRegister(event) {
     event.preventDefault();
+    const email = document.getElementById('reg-email').value.trim();
+    
+    if(usersDatabase[email]) return alert("This Email is already registered in our system!");
+
+    tempRegEmail = email;
+    registrationOTP = Math.floor(100000 + Math.random() * 900000).toString();
+    
+    alert(`📧 SECURITY SYSTEM SIMULATION\n\nRegistration OTP sent to:\nEmail: ${email}\n\nYour Temporary Registration OTP is: ${registrationOTP}`);
+
+    document.getElementById('form-register-init').classList.add('hidden');
+    document.getElementById('form-register-otp').classList.remove('hidden');
+}
+
+// Step 2: Verify OTP
+function verifyRegisterOTP(event) {
+    event.preventDefault();
+    const enteredOTP = document.getElementById('reg-otp-input').value.trim();
+    
+    if(enteredOTP === registrationOTP) {
+        alert("✅ OTP Verified Successfully! Please complete your profile details.");
+        document.getElementById('form-register-otp').classList.add('hidden');
+        document.getElementById('form-register-details').classList.remove('hidden');
+    } else {
+        alert("❌ Invalid OTP! Please try again.");
+    }
+}
+
+// Step 3: Save Full Registration
+function completeRegistration(event) {
+    event.preventDefault();
+    
     const pass = document.getElementById('reg-pass').value;
     const cpass = document.getElementById('reg-cpass').value;
-    const email = document.getElementById('reg-email').value.trim();
-    const mobile = document.getElementById('reg-mobile').value.trim();
     
     if(pass !== cpass) return alert("Passwords do not match!");
-    if(usersDatabase[email]) return alert("This Email is already registered!");
 
-    pendingRegistration = {
+    const newUser = {
         name: document.getElementById('reg-name').value.trim(),
-        email: email, mobile: mobile,
+        email: tempRegEmail,
+        mobile: document.getElementById('reg-mobile').value.trim(),
         org: document.getElementById('reg-org').value.trim(),
         role: document.getElementById('reg-role').value,
         license: document.getElementById('reg-license').value.trim(),
         password: pass 
     };
 
-    registrationOTP = Math.floor(100000 + Math.random() * 900000).toString();
-    alert(`📧 SECURITY SYSTEM SIMULATION\n\nRegistration OTP sent to:\nEmail: ${email}\nMobile: ${mobile}\n\nYour Temporary Registration OTP is: ${registrationOTP}`);
-
-    document.getElementById('form-register').classList.add('hidden');
-    document.getElementById('form-register-otp').classList.remove('hidden');
-}
-
-function verifyRegisterOTP(event) {
-    event.preventDefault();
-    const enteredOTP = document.getElementById('reg-otp-input').value.trim();
+    usersDatabase[tempRegEmail] = newUser;
+    localStorage.setItem('usersDB', JSON.stringify(usersDatabase));
     
-    if(enteredOTP === registrationOTP) {
-        usersDatabase[pendingRegistration.email] = pendingRegistration;
-        localStorage.setItem('usersDB', JSON.stringify(usersDatabase));
-        alert("✅ Registration Successful! You can now log in securely with your Email and Password.");
-        toggleAuthMode('login');
-    } else {
-        alert("❌ Invalid OTP! Please try again.");
-    }
+    alert("✅ Registration Complete! You can now log in securely.");
+    toggleAuthMode('login');
 }
+
 
 function logoutAdmin() {
     sessionStorage.removeItem('isAdminLoggedIn');
