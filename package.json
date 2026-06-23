@@ -1,0 +1,21 @@
+{
+  "name": "mca-final-sem-project",
+  "version": "1.0.0",
+  "description": "A medicine authenticity verification system. Converted from vanilla HTML/CSS/JS to a full **MERN** stack (MongoDB, Express, React, Node.js). **Zero UI or feature changes.**",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Ismailsaad493/medi-verify.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/Ismailsaad493/medi-verify/issues"
+  },
+  "homepage": "https://github.com/Ismailsaad493/medi-verify#readme"
+}
